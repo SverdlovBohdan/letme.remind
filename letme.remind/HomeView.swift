@@ -10,30 +10,42 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject var navigation: NavigationStore
     @AppStorage(NotesPersitenceKeys.notesToRemindKey) var notesPayload: Data = Data()
+    @AppStorage(NotesPersitenceKeys.unhandledNotes) var unhandledNotesPayload: Data = Data()
     @StateObject var viewStore: HomeViewStore = .makeDefault()
     
-    /// TODO(BoSv): Use DI
+    // TODO: Use DI
     private var notifications: LocalNotificationPermissionsProvider = Notifications.standart
     
-    /// TODO(BoSv): Use DI
+    // TODO: Use DI
     private var notesReader: NotesReader = NotesPersistence.standart
     
-    /// DELETE. For manual tests only
+    // DELETE. For manual tests only
     private var notesWriter: NotesWriter = NotesPersistence.standart
     
     var body: some View {
         NavigationStack(path: $navigation.state.navigationPath) {
-            ZStack {
-                VStack {
-                    let _ = Self._printChanges()
-                    
-                    Text("\(notesReader.count($notesPayload))")
-                    Text("notes in memory")
-                    
-                    Button("Test notification") {
-                        let newNote: Note = Note(title: "testTitle", content: "Testcontn")
-                        Notifications.standart.scheduleTestNotification(note: newNote)
-                        notesWriter.write(newNote,to: $notesPayload)
+            VStack {
+                let _ = Self._printChanges()
+                
+                Text("\(notesReader.count($notesPayload))")
+                    .font(.largeTitle)
+                Text("notes in memory")
+                
+                Button("Test notification") {
+                    let newNote: Note = Note(title: "testTitle", content: "Testcontn")
+                    Notifications.standart.scheduleTestNotification(note: newNote)
+                    notesWriter.write(newNote,to: $notesPayload)
+                }
+                
+                if notesReader.count($unhandledNotesPayload) != 0 {
+                    List {
+                        Section {
+                            ForEach(notesReader.read(from: $unhandledNotesPayload), id: \.self) { unhandledNote in
+                                UnhandledNoteRowView(note: unhandledNote)
+                            }
+                        } header: {
+                            Text("Unhandled notes")
+                        }
                     }
                 }
             }

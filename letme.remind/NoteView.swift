@@ -3,13 +3,14 @@ import Combine
 
 struct NoteView: View {
     @AppStorage(NotesPersitenceKeys.notesToRemindKey) var notesPayload: Data = Data()
+    @AppStorage(NotesPersitenceKeys.unhandledNotes) var unhandledNotesPayload: Data = Data()
     
     @StateObject private var store: MakeNewNoteStore = .makeDefault()
     @State private var remindOption: WhenToRemind = .within7Days
     
-    /// TODO: Use DI
+    // TODO: Use DI
     private var notesWriter: NotesWriter = NotesPersistence.standart
-    /// TODO: Use DI
+    // TODO: Use DI
     private var notifications: LocalNotificationScheduler = Notifications.standart
     
     private let noteToPreview: Note?
@@ -82,6 +83,7 @@ struct NoteView: View {
     
     private func forget(note: Note, from notes: Binding<Data>) {
         notesWriter.remove(noteToPreview!, from: $notesPayload)
+        notesWriter.remove(noteToPreview!, from: $unhandledNotesPayload)
         doneCallback?()
     }
     
@@ -115,6 +117,7 @@ struct NoteView: View {
                     /// TODO: extend writer by rewrite()
                     if isPreview {
                         notesWriter.remove(noteToPreview!, from: $notesPayload)
+                        notesWriter.remove(noteToPreview!, from: $unhandledNotesPayload)
                     }
                     
                     notesWriter.write(newNote,to: $notesPayload)

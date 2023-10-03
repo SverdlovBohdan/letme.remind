@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Note: Codable, Identifiable {
+struct Note: Codable, Identifiable, Hashable {
     var id = UUID()
     var createdAt: Date = Date()
     

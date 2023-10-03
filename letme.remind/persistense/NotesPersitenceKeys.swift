@@ -6,8 +6,10 @@
 //
 
 import Foundation
+import SwiftUI
 
 struct NotesPersitenceKeys {
     static let notesToRemindKey: String = "NotesToRemind"
     static let notesArchive: String = "NotesArchive"
+    static let unhandledNotes: String = "UnhandledNotes"
 }

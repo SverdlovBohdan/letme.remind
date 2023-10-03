@@ -8,14 +8,14 @@
 import Foundation
 import SwiftUI
 
-struct NotesPersistence: NotesWriter, NotesReader {
+class NotesPersistence: NotesWriter, NotesReader {
     private let decoder: JSONDecoder = .init()
     private let encoder: JSONEncoder = .init()
     
     func write(_ note: Note, to notes: Binding<Data>) {
         var persistedNotes: Notes = read(from: notes)
         persistedNotes.append(note)
-                
+        
         if let data = try? encoder.encode(persistedNotes) {
             notes.wrappedValue = data
         }
@@ -34,7 +34,7 @@ struct NotesPersistence: NotesWriter, NotesReader {
         }
     }
     
-    /// TODO(BoSv): change return type to Result<Int, ErrorString>
+    // TODO: Change return type to Result<Int, ErrorString>
     func read(from notes: Binding<Data>) -> Notes {
         
         if let persistedNotes = try? decoder.decode(Notes.self, from: notes.wrappedValue) {
@@ -60,4 +60,30 @@ extension NotesPersistence {
     static let standart: NotesPersistence = {
         return NotesPersistence()
     }()
+}
+
+extension NotesPersistence {
+    static func makeNotesToRemindPersistenceBinding() -> Binding<Data> {
+        return Binding {
+            return UserDefaults.standard.data(forKey: NotesPersitenceKeys.notesToRemindKey) ?? Data()
+        } set: { value in
+            UserDefaults.standard.setValue(value, forKey: NotesPersitenceKeys.notesToRemindKey)
+        }
+    }
+    
+    static func makeUnhandledNotesPersistenceBinding() -> Binding<Data> {
+        return Binding {
+            return UserDefaults.standard.data(forKey: NotesPersitenceKeys.unhandledNotes) ?? Data()
+        } set: { value in
+            UserDefaults.standard.setValue(value, forKey: NotesPersitenceKeys.unhandledNotes)
+        }
+    }
+    
+    static func makeNotesArchivePersistenceBinding() -> Binding<Data> {
+        return Binding {
+            return UserDefaults.standard.data(forKey: NotesPersitenceKeys.notesArchive) ?? Data()
+        } set: { value in
+            UserDefaults.standard.setValue(value, forKey: NotesPersitenceKeys.notesArchive)
+        }
+    }
 }

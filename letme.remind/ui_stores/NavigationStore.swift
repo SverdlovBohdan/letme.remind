@@ -29,7 +29,9 @@ func navigationReducer(currentState: inout NavigationState,
                        action: NavigationAction) {
     switch action {
     case .openNoteView(let noteId):
-        currentState.navigationPath = NavigationPath([noteId])
+        if currentState.navigationPath.isEmpty {
+            currentState.navigationPath = NavigationPath([noteId])
+        }
         
     case .openRootView:
         currentState.navigationPath = NavigationPath()
