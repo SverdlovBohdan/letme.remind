@@ -30,22 +30,25 @@ class LetMeRemindAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificatio
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
         print("### willPresent")
-        
-        if let note = notesReader.one(by: notification.request.identifier, from: notesToRemind) {
-            notesWriter.write(note, to: unhandledNotesPersistence)
-        }
-        navigationStore?.dispatch(action: .openNoteView(NoteId(noteId: notification.request.identifier)))
+        writeToUnhandledNotes(id: notification.request.identifier)
         return [.badge, .sound]
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
         print("### didReceive")
         if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
+            writeToUnhandledNotes(id: response.notification.request.identifier)
             navigationStore?.dispatch(action: .openNoteView(NoteId(noteId: response.notification.request.identifier)))
         }
     }
     
     func setNavigationStore(_ store: NavigationStore) {
         navigationStore = store
+    }
+    
+    private func writeToUnhandledNotes(id: String) {
+        if let note = notesReader.one(by: id, from: notesToRemind) {
+            notesWriter.write(note, to: unhandledNotesPersistence)
+        }
     }
 }

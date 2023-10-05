@@ -29,7 +29,12 @@ protocol LocalNotificationScheduler {
     func schedule(note: Note, when: WhenToRemind) async -> Result<Void, ScheduleError>
 }
 
-class Notifications: LocalNotificationPermissionsProvider, LocalNotificationScheduler {
+protocol LocalNotificationProvider {
+    func pendingNotifications() async -> [UNNotificationRequest]
+}
+
+class Notifications: LocalNotificationPermissionsProvider, LocalNotificationScheduler,
+                     LocalNotificationProvider {
     static private let SECONDS_IN_DAY: TimeInterval = 86_400
     
     private func requestLocalNotificationPermissions() async -> UNAuthorizationStatus {
@@ -45,6 +50,11 @@ class Notifications: LocalNotificationPermissionsProvider, LocalNotificationSche
         }
         
         return permissionsState
+    }
+    
+    func pendingNotifications() async -> [UNNotificationRequest] {
+        let notifications = await UNUserNotificationCenter.current().pendingNotificationRequests()
+        return notifications
     }
     
     func isLocalNotificationPermissionsGranted() async -> Bool {

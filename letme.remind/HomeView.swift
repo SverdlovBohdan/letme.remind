@@ -14,7 +14,8 @@ struct HomeView: View {
     @StateObject var viewStore: HomeViewStore = .makeDefault()
     
     // TODO: Use DI
-    private var notifications: LocalNotificationPermissionsProvider = Notifications.standart
+    private var notificationPermissions: LocalNotificationPermissionsProvider = Notifications.standart
+    private var notificationsProvider: LocalNotificationProvider = Notifications.standart
     
     // TODO: Use DI
     private var notesReader: NotesReader = NotesPersistence.standart
@@ -39,10 +40,10 @@ struct HomeView: View {
                     notesWriter.write(newNote,to: $notesPayload)
                 }
                 
-                Text("Delivered notifications \(count)")
+                Text("Pending notifications \(count)")
                 Button("Refresh notificaitons count") {
                     Task { @MainActor in
-                        count = await UNUserNotificationCenter.current().deliveredNotifications().count
+                        count = await UNUserNotificationCenter.current().pendingNotificationRequests().count
                     }
                 }
                 
@@ -80,7 +81,7 @@ struct HomeView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button {
                         Task {
-                            let isPermissionGranted: Bool = await notifications.isLocalNotificationPermissionsGranted()
+                            let isPermissionGranted: Bool = await notificationPermissions.isLocalNotificationPermissionsGranted()
                             isPermissionGranted ? showMakingNoteView() : showNotificationsAreDisabledAlert()
                         }
                     } label: {
@@ -88,6 +89,11 @@ struct HomeView: View {
                             .imageScale(.large)
                     }
                 }
+            }
+            .animation(.bouncy, value: unhandledNotesPayload)
+            .task {
+                print("### task")
+                await updateUnhandledNotes()
             }
         }
     }
@@ -116,6 +122,29 @@ struct HomeView: View {
     
     private func showNotificationsAreDisabledAlert() {
         viewStore.dispatch(action: .showLocalNotificationsAlertAreDisabled)
+    }
+    
+    private func updateUnhandledNotes() async {
+        let pendingNotifications = await notificationsProvider.pendingNotifications()
+        let allNotes = notesReader.read(from: $notesPayload)
+        let unhandledNotes = notesReader.read(from: $unhandledNotesPayload)
+        
+        let firedButNotInUnhandledNotes = allNotes.filter { item in
+            let isPendingNote = pendingNotifications.contains { notificationRequest in
+                return notificationRequest.identifier == item.id.uuidString
+            }
+            let inUnhandledNotes = unhandledNotes.contains { unhandledNote in
+                return unhandledNote.id == item.id
+            }
+            
+            return !isPendingNote && !inUnhandledNotes
+        }
+        
+        if !firedButNotInUnhandledNotes.isEmpty {
+            firedButNotInUnhandledNotes.forEach { note in
+                notesWriter.write(note, to: $unhandledNotesPayload)
+            }
+        }
     }
 }
 
