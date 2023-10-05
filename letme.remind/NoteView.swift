@@ -55,7 +55,7 @@ struct NoteView: View {
                 Button(confirmationActionText) {
                     tryToScheduleNewNote(when: remindOption)
                 }
-                .disabled(!store.state.isValid)
+                .disabled(!store.isValid)
             }
             
             ToolbarItemGroup(placement: .cancellationAction) {
@@ -89,26 +89,26 @@ struct NoteView: View {
     
     private func makeTitleBinding() -> Binding<String> {
         return Binding {
-            store.state.title
+            store.title
         } set: {
-            store.state.title = $0
+            store.title = $0
             store.dispatch(action: .validate)
         }
     }
     
     private func makeContentBinding() -> Binding<String> {
         return Binding {
-            store.state.content
+            store.content
         } set: {
-            store.state.content = $0
+            store.content = $0
             store.dispatch(action: .validate)
         }
     }
     
     private func tryToScheduleNewNote(when: WhenToRemind) -> Void {
-        if store.state.isValid {
-            let newNote: Note = Note(title: store.state.title,
-                                     content: store.state.content)
+        if store.isValid {
+            let newNote: Note = Note(title: store.title,
+                                     content: store.content)
             Task { @MainActor in
                 let result = await notifications.schedule(note: newNote, when: remindOption)
                 

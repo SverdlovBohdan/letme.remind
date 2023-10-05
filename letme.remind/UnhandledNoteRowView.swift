@@ -39,8 +39,6 @@ struct UnhandledNoteRowView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
-                // TODO: light/dark thems handling
-                .foregroundStyle(.black)
                 
                 Spacer()
                 

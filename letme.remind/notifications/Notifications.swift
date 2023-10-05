@@ -36,11 +36,11 @@ class Notifications: LocalNotificationPermissionsProvider, LocalNotificationSche
         var permissionsState: UNAuthorizationStatus = .notDetermined
         
         do {
-            /// TODO(BoSv): get object from DI container
+            // TODO: get object from DI container
             permissionsState = try await UNUserNotificationCenter.current()
                 .requestAuthorization(options: [.alert, .sound]) ? .authorized : .denied
         } catch {
-            /// TODO(BoSv): logging system.
+            // TODO: logging system.
             print("UNUserNotificationCenter.requestAuthorization() exception. permissionsState is .Unknown now")
         }
         

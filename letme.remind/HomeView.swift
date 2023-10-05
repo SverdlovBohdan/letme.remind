@@ -22,8 +22,10 @@ struct HomeView: View {
     // DELETE. For manual tests only
     private var notesWriter: NotesWriter = NotesPersistence.standart
     
+    @State var count: Int = 0
+    
     var body: some View {
-        NavigationStack(path: $navigation.state.navigationPath) {
+        NavigationStack(path: $navigation.navigationPath) {
             VStack {
                 let _ = Self._printChanges()
                 
@@ -37,6 +39,13 @@ struct HomeView: View {
                     notesWriter.write(newNote,to: $notesPayload)
                 }
                 
+                Text("Delivered notifications \(count)")
+                Button("Refresh notificaitons count") {
+                    Task { @MainActor in
+                        count = await UNUserNotificationCenter.current().deliveredNotifications().count
+                    }
+                }
+                
                 if notesReader.count($unhandledNotesPayload) != 0 {
                     List {
                         Section {
@@ -47,15 +56,16 @@ struct HomeView: View {
                             Text("Unhandled notes")
                         }
                     }
+                    .listStyle(.plain)
                 }
             }
-            .alert(isPresented: $viewStore.state.isLocalNotificationsAlertAreDisabledPresented) {
+            .alert(isPresented: $viewStore.isLocalNotificationsAlertAreDisabledPresented) {
                 Alert(title: Text("Local notifications are disabled"),
                       message: Text("You can enable local notifications in settings"),
                       primaryButton: .default(Text("Open settings"), action: openSettings),
                       secondaryButton: .cancel())
             }
-            .navigationDestination(isPresented: $viewStore.state.isMakingNoteViewPresented) {
+            .navigationDestination(isPresented: $viewStore.isMakingNoteViewPresented) {
                 NoteView {
                     closeMakingNoteView()
                 }
