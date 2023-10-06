@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-class NotesPersistence: NotesWriter, NotesReader {
+class NotesPersistence: NotesWriter, NotesReader, NotesPersistenceBindings {
     private let decoder: JSONDecoder = .init()
     private let encoder: JSONEncoder = .init()
     
@@ -54,16 +54,8 @@ class NotesPersistence: NotesWriter, NotesReader {
     func count(_ notes: Binding<Data>) -> Int {
         return read(from: notes).count
     }
-}
-
-extension NotesPersistence {
-    static let standart: NotesPersistence = {
-        return NotesPersistence()
-    }()
-}
-
-extension NotesPersistence {
-    static func makeNotesToRemindPersistenceBinding() -> Binding<Data> {
+    
+    func makeNotesToRemindPersistenceBinding() -> Binding<Data> {
         return Binding {
             return UserDefaults.standard.data(forKey: NotesPersitenceKeys.notesToRemindKey) ?? Data()
         } set: { value in
@@ -71,7 +63,7 @@ extension NotesPersistence {
         }
     }
     
-    static func makeUnhandledNotesPersistenceBinding() -> Binding<Data> {
+    func makeUnhandledNotesPersistenceBinding() -> Binding<Data> {
         return Binding {
             return UserDefaults.standard.data(forKey: NotesPersitenceKeys.unhandledNotes) ?? Data()
         } set: { value in
@@ -79,7 +71,7 @@ extension NotesPersistence {
         }
     }
     
-    static func makeNotesArchivePersistenceBinding() -> Binding<Data> {
+    func makeNotesArchivePersistenceBinding() -> Binding<Data> {
         return Binding {
             return UserDefaults.standard.data(forKey: NotesPersitenceKeys.notesArchive) ?? Data()
         } set: { value in

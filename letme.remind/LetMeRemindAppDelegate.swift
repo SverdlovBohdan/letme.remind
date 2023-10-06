@@ -11,15 +11,12 @@ import SwiftUI
 
 class LetMeRemindAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     private var navigationStore: NavigationStore? = nil
-
-    // TODO: Use DI
-    private var unhandledNotesPersistence: Binding<Data> = NotesPersistence.makeUnhandledNotesPersistenceBinding()
-    private var notesToRemind: Binding<Data> = NotesPersistence.makeNotesToRemindPersistenceBinding()
     
-    // TODO: Use DI
-    private var notesWriter: NotesWriter = NotesPersistence.standart
-    // TODO: Use DI
-    private var notesReader: NotesReader = NotesPersistence.standart
+    private var notesPersistenceBinding: NotesPersistenceBindings =
+        Environment.forceResolve(type: NotesPersistenceBindings.self)
+    
+    private var notesReader: NotesReader = Environment.forceResolve(type: NotesReader.self)
+    private var notesWriter: NotesWriter = Environment.forceResolve(type: NotesWriter.self)
 
     func application(_ application: UIApplication,
                      willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
@@ -45,8 +42,8 @@ class LetMeRemindAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificatio
     }
     
     private func writeToUnhandledNotes(id: String) {
-        if let note = notesReader.one(by: id, from: notesToRemind) {
-            notesWriter.write(note, to: unhandledNotesPersistence)
+        if let note = notesReader.one(by: id, from: notesPersistenceBinding.makeNotesToRemindPersistenceBinding()) {
+            notesWriter.write(note, to: notesPersistenceBinding.makeUnhandledNotesPersistenceBinding())
         }
     }
 }

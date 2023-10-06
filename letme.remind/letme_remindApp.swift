@@ -13,6 +13,21 @@ struct letme_remindApp: App {
     @UIApplicationDelegateAdaptor(LetMeRemindAppDelegate.self) var appDelegate
     @StateObject var navigationStore: NavigationStore = .makeDefault()
     
+    init() {
+        Environment.shared.register(NotesWriter.self) { _ in
+            NotesPersistence()
+        }
+        .inObjectScope(.container)
+        .implements(NotesReader.self, NotesPersistenceBindings.self)
+        
+        Environment.shared.register(LocalNotificationPermissionsProvider.self) { _ in
+            Notifications()
+        }
+        .inObjectScope(.container)
+        .implements(LocalNotificationScheduler.self)
+        .implements(LocalNotificationProvider.self)
+    }
+    
     var body: some Scene {
         WindowGroup {
             MainView()

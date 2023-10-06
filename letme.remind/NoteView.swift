@@ -9,10 +9,9 @@ struct NoteView: View {
     @StateObject private var store: MakeNewNoteStore = .makeDefault()
     @State private var remindOption: WhenToRemind = .within7Days
     
-    // TODO: Use DI
-    private var notesWriter: NotesWriter = NotesPersistence.standart
-    // TODO: Use DI
-    private var notifications: LocalNotificationScheduler = Notifications.standart
+    private var notesWriter: NotesWriter = Environment.forceResolve(type: NotesWriter.self)
+    private var notifications: LocalNotificationScheduler =
+        Environment.forceResolve(type: LocalNotificationScheduler.self)
     
     private let noteToPreview: Note?
     private var isPreview: Bool {

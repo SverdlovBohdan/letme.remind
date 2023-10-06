@@ -143,13 +143,13 @@ class Notifications: LocalNotificationPermissionsProvider, LocalNotificationSche
     }
 }
 
+#if DEBUG
 extension Notifications {
     static let standart: Notifications = {
         return Notifications()
     }()
 }
 
-#if DEBUG
 extension Notifications {
     func scheduleTestNotification(note: Note) {
         Task {

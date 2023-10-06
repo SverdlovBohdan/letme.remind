@@ -12,16 +12,15 @@ struct HomeView: View {
     @AppStorage(NotesPersitenceKeys.notesToRemindKey) var notesPayload: Data = Data()
     @AppStorage(NotesPersitenceKeys.unhandledNotes) var unhandledNotesPayload: Data = Data()
     @StateObject var viewStore: HomeViewStore = .makeDefault()
-    
-    // TODO: Use DI
-    private var notificationPermissions: LocalNotificationPermissionsProvider = Notifications.standart
-    private var notificationsProvider: LocalNotificationProvider = Notifications.standart
-    
-    // TODO: Use DI
-    private var notesReader: NotesReader = NotesPersistence.standart
-    private var notesWriter: NotesWriter = NotesPersistence.standart
-    
     @State var count: Int = 0
+    
+    private var notificationPermissions: LocalNotificationPermissionsProvider =
+        Environment.forceResolve(type: LocalNotificationPermissionsProvider.self)
+    private var notificationsProvider: LocalNotificationProvider =
+        Environment.forceResolve(type: LocalNotificationProvider.self)
+    
+    private var notesReader: NotesReader = Environment.forceResolve(type: NotesReader.self)
+    private var notesWriter: NotesWriter = Environment.forceResolve(type: NotesWriter.self)
     
     var body: some View {
         NavigationStack(path: $navigation.navigationPath) {
@@ -84,7 +83,7 @@ struct HomeView: View {
                         Task {
                             let newNote: Note = Note(title: "testTitle", content: "Testcontn")
                             Notifications.standart.scheduleTestNotification(note: newNote)
-                            NotesPersistence.standart.write(newNote,to: $notesPayload)
+                            notesWriter.write(newNote,to: $notesPayload)
                         }
                     } label: {
                         Image(systemName: "note.text.badge.plus")
