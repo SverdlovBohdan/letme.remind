@@ -4,6 +4,7 @@ import Combine
 struct NoteView: View {
     @AppStorage(NotesPersitenceKeys.notesToRemindKey) var notesPayload: Data = Data()
     @AppStorage(NotesPersitenceKeys.unhandledNotes) var unhandledNotesPayload: Data = Data()
+    @AppStorage(NotesPersitenceKeys.notesArchive) var notesArchivePayload: Data = Data()
     
     @StateObject private var store: MakeNewNoteStore = .makeDefault()
     @State private var remindOption: WhenToRemind = .within7Days
@@ -57,11 +58,11 @@ struct NoteView: View {
                 }
                 .disabled(!store.isValid)
             }
-            
+             
             ToolbarItemGroup(placement: .cancellationAction) {
                 Button("Forget") {
                     assert(noteToPreview != nil, "Call 'Forget' without known Note")
-                    forget(note: noteToPreview!, from: $notesPayload)
+                    forget(note: noteToPreview!)
                 }
                 .foregroundStyle(.red)
                 .disabled(!isPreview)
@@ -81,9 +82,10 @@ struct NoteView: View {
         store.dispatch(action: .fillBy(noteToPreview!))
     }
     
-    private func forget(note: Note, from notes: Binding<Data>) {
-        notesWriter.remove(noteToPreview!, from: $notesPayload)
-        notesWriter.remove(noteToPreview!, from: $unhandledNotesPayload)
+    private func forget(note: Note) {
+        notesWriter.remove(note, from: $notesPayload)
+        notesWriter.remove(note, from: $unhandledNotesPayload)
+        notesWriter.write(note, to: $notesArchivePayload)
         doneCallback?()
     }
     

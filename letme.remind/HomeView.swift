@@ -19,8 +19,6 @@ struct HomeView: View {
     
     // TODO: Use DI
     private var notesReader: NotesReader = NotesPersistence.standart
-    
-    // DELETE. For manual tests only
     private var notesWriter: NotesWriter = NotesPersistence.standart
     
     @State var count: Int = 0
@@ -28,30 +26,15 @@ struct HomeView: View {
     var body: some View {
         NavigationStack(path: $navigation.navigationPath) {
             VStack {
-                let _ = Self._printChanges()
-                
                 Text("\(notesReader.count($notesPayload))")
                     .font(.largeTitle)
                 Text("notes in memory")
-                
-                Button("Test notification") {
-                    let newNote: Note = Note(title: "testTitle", content: "Testcontn")
-                    Notifications.standart.scheduleTestNotification(note: newNote)
-                    notesWriter.write(newNote,to: $notesPayload)
-                }
-                
-                Text("Pending notifications \(count)")
-                Button("Refresh notificaitons count") {
-                    Task { @MainActor in
-                        count = await UNUserNotificationCenter.current().pendingNotificationRequests().count
-                    }
-                }
-                
+                                
                 if notesReader.count($unhandledNotesPayload) != 0 {
                     List {
                         Section {
                             ForEach(notesReader.read(from: $unhandledNotesPayload), id: \.self) { unhandledNote in
-                                UnhandledNoteRowView(note: unhandledNote)
+                                NoteRowView(note: unhandledNote)
                             }
                         } header: {
                             Text("Unhandled notes")
@@ -86,15 +69,29 @@ struct HomeView: View {
                         }
                     } label: {
                         Image(systemName: "plus")
-                            .imageScale(.large)
                     }
                 }
             }
-            .animation(.bouncy, value: unhandledNotesPayload)
             .task {
-                print("### task")
                 await updateUnhandledNotes()
             }
+            .animation(.bouncy, value: unhandledNotesPayload)
+ 
+            #if DEBUG
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button {
+                        Task {
+                            let newNote: Note = Note(title: "testTitle", content: "Testcontn")
+                            Notifications.standart.scheduleTestNotification(note: newNote)
+                            NotesPersistence.standart.write(newNote,to: $notesPayload)
+                        }
+                    } label: {
+                        Image(systemName: "note.text.badge.plus")
+                    }
+                }
+            }
+            #endif
         }
     }
     

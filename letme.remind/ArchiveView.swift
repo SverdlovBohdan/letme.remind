@@ -8,9 +8,42 @@
 import SwiftUI
 
 struct ArchiveView: View {
+    @AppStorage(NotesPersitenceKeys.notesArchive) var notesArchivePayload: Data = Data()
+    
+    // TODO: Use DI
+    private var notesReader: NotesReader = NotesPersistence.standart
+    private var notesWriter: NotesWriter = NotesPersistence.standart
+    
+    private var archiveNotes: Notes {
+        notesReader.read(from: $notesArchivePayload)
+    }
+    
+    @ViewBuilder var content: some View {
+        if notesReader.count($notesArchivePayload) != 0 {
+            List {
+                ForEach(archiveNotes) { note in
+                    NoteRowView(note: note, kind: .archive)
+                }
+                .onDelete(perform: { indexSet in
+                    indexSet.forEach { index in
+                        notesWriter.remove(archiveNotes[index], from: $notesArchivePayload)
+                    }
+                })
+            }
+            .listStyle(.plain)
+            .toolbar {
+                EditButton()
+            }
+        } else {
+            Text("Archive is empty")
+                .foregroundStyle(.secondary)
+        }
+    }
+    
     var body: some View {
-        VStack {
-            Text("Archive")
+        NavigationStack {
+            content
+                .navigationTitle("Archive")
         }
     }
 }
