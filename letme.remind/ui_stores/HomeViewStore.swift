@@ -4,10 +4,14 @@
 //
 //  Created by Bohdan Sverdlov on 11.09.2023.
 //
-enum HomeViewAction {
+enum HomeViewAction: String, CustomStringConvertible {
     case showLocalNotificationsAlertAreDisabled
     case showMakingNoteView
     case closeMakingNoteView
+    
+    var description: String {
+        return self.rawValue
+    }
 }
 
 struct HomeViewState {

@@ -6,6 +6,7 @@
 //
 
 import NotificationCenter
+import os
 
 enum ScheduleError: Error {
     case failed
@@ -37,31 +38,34 @@ class Notifications: LocalNotificationPermissionsProvider, LocalNotificationSche
                      LocalNotificationProvider {
     static private let SECONDS_IN_DAY: TimeInterval = 86_400
     
+    private var notificationCenter: UNUserNotificationCenter =
+        Environment.forceResolve(type: UNUserNotificationCenter.self)
+    
+    private var logger: Logger =
+        Environment.forceResolve(type: Logger.self, arg1: String(describing: Notifications.self))
+    
     private func requestLocalNotificationPermissions() async -> UNAuthorizationStatus {
         var permissionsState: UNAuthorizationStatus = .notDetermined
         
         do {
-            // TODO: get object from DI container
-            permissionsState = try await UNUserNotificationCenter.current()
+            permissionsState = try await notificationCenter
                 .requestAuthorization(options: [.alert, .sound]) ? .authorized : .denied
-        } catch {
-            // TODO: logging system.
-            print("UNUserNotificationCenter.requestAuthorization() exception. permissionsState is .Unknown now")
+        } catch(let error) {
+            logger.warning("requestAuthorization() exception. permissionsState is .Unknown now. \(error.localizedDescription)")
         }
         
         return permissionsState
     }
     
     func pendingNotifications() async -> [UNNotificationRequest] {
-        let notifications = await UNUserNotificationCenter.current().pendingNotificationRequests()
+        let notifications = await notificationCenter.pendingNotificationRequests()
         return notifications
     }
     
     func isLocalNotificationPermissionsGranted() async -> Bool {
-        let settings = await UNUserNotificationCenter.current().notificationSettings()
+        let settings = await notificationCenter.notificationSettings()
         
-        /// TODO(BoSv): logging system.
-        print("### \(settings.authorizationStatus) notifications status")
+        logger.info("Local Notifications status: \(settings.authorizationStatus.rawValue)")
         
         var permissionsState: UNAuthorizationStatus = settings.authorizationStatus
         if permissionsState == .notDetermined {
@@ -109,6 +113,7 @@ class Notifications: LocalNotificationPermissionsProvider, LocalNotificationSche
         
         let isPermissionsGranted: Bool = await isLocalNotificationPermissionsGranted()
         if !isPermissionsGranted {
+            logger.notice("No persmissions for note making.")
             return .failure(.nopermissions)
         }
         
@@ -134,8 +139,9 @@ class Notifications: LocalNotificationPermissionsProvider, LocalNotificationSche
                                                                    content: content,
                                                                    trigger: trigger)
         do {
-            try await UNUserNotificationCenter.current().add(request)
+            try await notificationCenter.add(request)
         } catch {
+            logger.error("NotificaitonCenter.add() exception. \(id) has been skipped")
             return .failure(.failed)
         }
         

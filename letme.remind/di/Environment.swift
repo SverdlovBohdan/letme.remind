@@ -14,4 +14,9 @@ struct Environment {
         guard let object = shared.resolve(type) else { fatalError("No registered type \(type)") }
         return object
     }
+    
+    static func forceResolve<T, A>(type: T.Type, arg1: A) -> T {
+        guard let object = shared.resolve(type, argument: arg1) else { fatalError("No registered type \(type)") }
+        return object
+    }
 }

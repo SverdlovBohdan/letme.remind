@@ -7,16 +7,21 @@
 
 import Foundation
 import SwiftUI
+import os
 
 class NotesPersistence: NotesWriter, NotesReader, NotesPersistenceBindings {
     private let decoder: JSONDecoder = .init()
     private let encoder: JSONEncoder = .init()
+    
+    private var logger: Logger =
+        Environment.forceResolve(type: Logger.self, arg1: String(describing: NotesPersistence.self))
     
     func write(_ note: Note, to notes: Binding<Data>) {
         var persistedNotes: Notes = read(from: notes)
         persistedNotes.append(note)
         
         if let data = try? encoder.encode(persistedNotes) {
+            logger.info("\(note.id) has been written")
             notes.wrappedValue = data
         }
     }
@@ -29,18 +34,19 @@ class NotesPersistence: NotesWriter, NotesReader, NotesPersistenceBindings {
         }) {
             persistedNotes.remove(at: index)
             if let data = try? encoder.encode(persistedNotes) {
+                logger.info("\(note.id) has been removed")
                 notes.wrappedValue = data
             }
         }
     }
-    
-    // TODO: Change return type to Result<Int, ErrorString>
+
     func read(from notes: Binding<Data>) -> Notes {
         
         if let persistedNotes = try? decoder.decode(Notes.self, from: notes.wrappedValue) {
             return persistedNotes
         }
         
+        logger.notice("No persisted notes")
         return Notes()
     }
     

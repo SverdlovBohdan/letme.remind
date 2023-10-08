@@ -115,7 +115,6 @@ struct NoteView: View {
                 
                 switch result {
                 case .success(_):
-                    /// TODO: extend writer by rewrite()
                     if isPreview {
                         notesWriter.remove(noteToPreview!, from: $notesPayload)
                         notesWriter.remove(noteToPreview!, from: $unhandledNotesPayload)

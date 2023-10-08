@@ -5,9 +5,18 @@
 //  Created by Bohdan Sverdlov on 23.09.2023.
 //
 
-enum MakeNewNoteAction {
+enum MakeNewNoteAction: CustomStringConvertible {
     case validate
     case fillBy(Note)
+    
+    var description: String {
+        switch self {
+        case .validate:
+            return "validate"
+        case .fillBy(_):
+            return "fillBy"
+        }
+    }
 }
 
 struct MakeNewNoteState {

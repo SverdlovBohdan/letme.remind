@@ -13,9 +13,18 @@ struct NoteId: Codable, Hashable {
     var noteId: String
 }
 
-enum NavigationAction {
+enum NavigationAction: CustomStringConvertible {
     case openNoteView(NoteId)
     case openRootView
+    
+    var description: String {
+        switch self {
+        case .openNoteView(_):
+            return "openNoteView"
+        case .openRootView:
+            return "openNoteView"
+        }
+    }
 }
 
 struct NavigationState {

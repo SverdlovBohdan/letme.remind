@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import UserNotifications
+import os
 
 
 @main
@@ -14,14 +16,23 @@ struct letme_remindApp: App {
     @StateObject var navigationStore: NavigationStore = .makeDefault()
     
     init() {
+        Environment.shared.register(Logger.self) { _, category in
+            return Logger(subsystem: Bundle.main.bundleIdentifier ?? "letme-remind.app", category: category)
+        }
+        
+        Environment.shared.register(UNUserNotificationCenter.self) { _ in
+            return UNUserNotificationCenter.current()
+        }
+        .inObjectScope(.container)
+        
         Environment.shared.register(NotesWriter.self) { _ in
-            NotesPersistence()
+            return NotesPersistence()
         }
         .inObjectScope(.container)
         .implements(NotesReader.self, NotesPersistenceBindings.self)
         
         Environment.shared.register(LocalNotificationPermissionsProvider.self) { _ in
-            Notifications()
+            return Notifications()
         }
         .inObjectScope(.container)
         .implements(LocalNotificationScheduler.self)
