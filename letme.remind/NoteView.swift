@@ -27,27 +27,28 @@ struct NoteView: View {
     }
     
     var confirmationActionText: String {
-        isPreview ? "Reschedule" : "Save"
+        isPreview ? String(localized: "Reschedule") : String(localized: "Schedule")
     }
     
     var body: some View {
         Form {
-            Picker("when to remind", selection: $remindOption) {
-                Text("Within 7 days").tag(WhenToRemind.within7Days)
-                Text("Within 30 days").tag(WhenToRemind.within30Days)
-                Text("In this month").tag(WhenToRemind.inThisMonth)
-                Text("Random").tag(WhenToRemind.someday)
+            Picker(String(localized: "Remind"), selection: $remindOption) {
+                Text(String(localized: "Within 7 days")).tag(WhenToRemind.within7Days)
+                Text(String(localized: "Within 30 days")).tag(WhenToRemind.within30Days)
+                Text(String(localized: "In this month")).tag(WhenToRemind.inThisMonth)
+                Text(String(localized: "Random")).tag(WhenToRemind.someday)
             }
             .pickerStyle(.inline)
             
             Section {
-                TextField("Title", text: makeTitleBinding())
+                TextField(String(localized: "Title"), text: makeTitleBinding())
                 
-                TextField("Note content", text: makeContentBinding(),
+                TextField(String(localized: "Note content"),
+                          text: makeContentBinding(),
                           axis: .vertical)
                 .lineLimit(10, reservesSpace: true)
             } header: {
-                Text("note")
+                Text(String(localized: "note"))
             }
         }
         .toolbar {
@@ -59,7 +60,7 @@ struct NoteView: View {
             }
              
             ToolbarItemGroup(placement: .cancellationAction) {
-                Button("Forget") {
+                Button(String(localized: "Forget")) {
                     assert(noteToPreview != nil, "Call 'Forget' without known Note")
                     forget(note: noteToPreview!)
                 }

@@ -5,12 +5,12 @@ struct MainView: View {
         TabView {
             HomeView()
                 .tabItem {
-                    Label("Home", systemImage: "square.and.pencil")
+                    Label(String(localized: "Home"), systemImage: "square.and.pencil")
                 }
             
             ArchiveView()
                 .tabItem {
-                    Label("Archive", systemImage: "archivebox")
+                    Label(String(localized: "Archive"), systemImage: "archivebox")
                 }
         }
     }

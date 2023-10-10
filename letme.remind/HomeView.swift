@@ -26,7 +26,7 @@ struct HomeView: View {
             VStack {
                 Text("\(notesReader.count($notesPayload))")
                     .font(.largeTitle)
-                Text("notes in memory")
+                Text(String(localized: "notes in memory"))
                                 
                 if notesReader.count($unhandledNotesPayload) != 0 {
                     List {
@@ -35,16 +35,16 @@ struct HomeView: View {
                                 NoteRowView(note: unhandledNote)
                             }
                         } header: {
-                            Text("Unhandled notes")
+                            Text(String(localized: "Reminded notes"))
                         }
                     }
                     .listStyle(.plain)
                 }
             }
             .alert(isPresented: $viewStore.isLocalNotificationsAlertAreDisabledPresented) {
-                Alert(title: Text("Local notifications are disabled"),
-                      message: Text("You can enable local notifications in settings"),
-                      primaryButton: .default(Text("Open settings"), action: openSettings),
+                Alert(title: Text(String(localized: "Local notifications are disabled")),
+                      message: Text(String(localized: "You can enable local notifications in settings")),
+                      primaryButton: .default(Text(String(localized: "Open settings")), action: openSettings),
                       secondaryButton: .cancel())
             }
             .navigationDestination(isPresented: $viewStore.isMakingNoteViewPresented) {

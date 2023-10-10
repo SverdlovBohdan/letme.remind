@@ -34,7 +34,7 @@ struct ArchiveView: View {
                 EditButton()
             }
         } else {
-            Text("Archive is empty")
+            Text(String(localized: "Archive is empty"))
                 .foregroundStyle(.secondary)
         }
     }
@@ -42,7 +42,7 @@ struct ArchiveView: View {
     var body: some View {
         NavigationStack {
             content
-                .navigationTitle("Archive")
+                .navigationTitle(String(localized: "Archive"))
         }
     }
 }
