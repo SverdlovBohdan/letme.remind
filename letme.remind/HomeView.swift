@@ -9,10 +9,9 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var navigation: NavigationStore
-    @AppStorage(NotesPersitenceKeys.notesToRemindKey) var notesPayload: Data = Data()
-    @AppStorage(NotesPersitenceKeys.unhandledNotes) var unhandledNotesPayload: Data = Data()
-    @StateObject var viewStore: HomeViewStore = .makeDefault()
-    @State var count: Int = 0
+    @AppStorage(NotesPersitenceKeys.notesToRemindKey) private var notesPayload: Data = Data()
+    @AppStorage(NotesPersitenceKeys.unhandledNotes) private var unhandledNotesPayload: Data = Data()
+    @StateObject private var viewStore: HomeViewStore = .makeDefault()
     
     private var notificationPermissions: LocalNotificationPermissionsProvider =
         Environment.forceResolve(type: LocalNotificationPermissionsProvider.self)

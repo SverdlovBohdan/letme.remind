@@ -2,9 +2,9 @@ import SwiftUI
 import Combine
 
 struct NoteView: View {
-    @AppStorage(NotesPersitenceKeys.notesToRemindKey) var notesPayload: Data = Data()
-    @AppStorage(NotesPersitenceKeys.unhandledNotes) var unhandledNotesPayload: Data = Data()
-    @AppStorage(NotesPersitenceKeys.notesArchive) var notesArchivePayload: Data = Data()
+    @AppStorage(NotesPersitenceKeys.notesToRemindKey) private var notesPayload: Data = Data()
+    @AppStorage(NotesPersitenceKeys.unhandledNotes) private var unhandledNotesPayload: Data = Data()
+    @AppStorage(NotesPersitenceKeys.notesArchive) private var notesArchivePayload: Data = Data()
     
     @StateObject private var store: MakeNewNoteStore = .makeDefault()
     @State private var remindOption: WhenToRemind = .within7Days

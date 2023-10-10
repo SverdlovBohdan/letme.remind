@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ArchiveView: View {
-    @AppStorage(NotesPersitenceKeys.notesArchive) var notesArchivePayload: Data = Data()
+    @AppStorage(NotesPersitenceKeys.notesArchive) private var notesArchivePayload: Data = Data()
     
     private var notesReader: NotesReader = Environment.forceResolve(type: NotesReader.self)
     private var notesWriter: NotesWriter = Environment.forceResolve(type: NotesWriter.self)
@@ -17,7 +17,7 @@ struct ArchiveView: View {
         notesReader.read(from: $notesArchivePayload)
     }
     
-    @ViewBuilder var content: some View {
+    @ViewBuilder private var content: some View {
         if notesReader.count($notesArchivePayload) != 0 {
             List {
                 ForEach(archiveNotes) { note in

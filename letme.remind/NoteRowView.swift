@@ -20,15 +20,12 @@ struct NoteRowView: View {
         formatter.dateFormat = "dd.MM.yyyy"
         return formatter
     }()
-    
-    var note: Note
-    let kind: Kind
-    
-    var presentedText: String {
+        
+    private var presentedText: String {
         note.title.isEmpty ? note.content : note.title
     }
     
-    var label: some View {
+    private var label: some View {
         HStack {
             VStack(alignment: .leading) {
                 Text(presentedText)
@@ -47,7 +44,7 @@ struct NoteRowView: View {
         }
     }
     
-    @ViewBuilder var content: some View {
+    @ViewBuilder private var content: some View {
         if kind == .unhandled {
             Button(action: {
                 navigation.dispatch(action: .openNoteView(NoteId(noteId: note.id.uuidString)))
@@ -58,6 +55,9 @@ struct NoteRowView: View {
             label
         }
     }
+    
+    var note: Note
+    let kind: Kind
     
     init(note: Note, kind: Kind = .unhandled) {
         self.note = note
