@@ -15,13 +15,14 @@ struct letme_remindApp: App {
     @UIApplicationDelegateAdaptor(LetMeRemindAppDelegate.self) var appDelegate
     @StateObject var navigationStore: NavigationStore = .makeDefault()
     
-    init() {
-        Environment.shared.register(Logger.self) { _, category in
-            return Logger(subsystem: Bundle.main.bundleIdentifier ?? "letme-remind.app", category: category)
-        }
-        
-        Environment.shared.register(UNUserNotificationCenter.self) { _ in
+    init() {        
+        Environment.shared.register(NotificationCenterAdapter.self) { _ in
             return UNUserNotificationCenter.current()
+        }
+        .inObjectScope(.container)
+        
+        Environment.shared.register(UserDefaultsAdapter.self) { _ in
+            return UserDefaults.standard
         }
         .inObjectScope(.container)
         

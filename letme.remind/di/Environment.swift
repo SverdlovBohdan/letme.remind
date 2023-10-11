@@ -6,9 +6,19 @@
 //
 
 import Swinject
+import os
+import Foundation
 
 struct Environment {
-    static let shared: Container = Container()
+    static let shared: Container = {
+        var container = Container()
+        
+        container.register(Logger.self) { _, category in
+            return Logger(subsystem: Bundle.main.bundleIdentifier ?? "letme-remind.app", category: category)
+        }
+        
+        return container
+    }()
     
     static func forceResolve<T>(type: T.Type) -> T {
         guard let object = shared.resolve(type) else { fatalError("No registered type \(type)") }

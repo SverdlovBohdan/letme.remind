@@ -12,11 +12,17 @@ class Notifications: LocalNotificationPermissionsProvider, LocalNotificationSche
                      LocalNotificationProvider {
     static private let SECONDS_IN_DAY: TimeInterval = 86_400
     
-    private var notificationCenter: UNUserNotificationCenter =
-        Environment.forceResolve(type: UNUserNotificationCenter.self)
+    private var notificationCenter: NotificationCenterAdapter =
+        Environment.forceResolve(type: NotificationCenterAdapter.self)
     
     private var logger: Logger =
         Environment.forceResolve(type: Logger.self, arg1: String(describing: Notifications.self))
+    
+    init() {}
+    
+    init(notificationCenter: NotificationCenterAdapter) {
+        self.notificationCenter = notificationCenter
+    }
     
     private func requestLocalNotificationPermissions() async -> UNAuthorizationStatus {
         var permissionsState: UNAuthorizationStatus = .notDetermined

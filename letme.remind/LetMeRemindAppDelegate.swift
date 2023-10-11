@@ -18,8 +18,8 @@ class LetMeRemindAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificatio
     private var notesReader: NotesReader = Environment.forceResolve(type: NotesReader.self)
     private var notesWriter: NotesWriter = Environment.forceResolve(type: NotesWriter.self)
     
-    private var notificationCenter: UNUserNotificationCenter =
-        Environment.forceResolve(type: UNUserNotificationCenter.self)
+    private var notificationCenter: NotificationCenterAdapter =
+        Environment.forceResolve(type: NotificationCenterAdapter.self)
 
     func application(_ application: UIApplication,
                      willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {

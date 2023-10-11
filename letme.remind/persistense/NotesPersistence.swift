@@ -10,11 +10,22 @@ import SwiftUI
 import os
 
 class NotesPersistence: NotesWriter, NotesReader, NotesPersistenceBindings {
-    private let decoder: JSONDecoder = .init()
-    private let encoder: JSONEncoder = .init()
+    //TODO: Hide under adapter interface
+    private var decoder: JSONDecoder = .init()
+    private var encoder: JSONEncoder = .init()
+    
+    private var userDefaults: UserDefaultsAdapter = Environment.forceResolve(type: UserDefaultsAdapter.self)
     
     private var logger: Logger =
         Environment.forceResolve(type: Logger.self, arg1: String(describing: NotesPersistence.self))
+    
+    init() {}
+    
+    init(decoder: JSONDecoder, encoder: JSONEncoder, userDefaults: UserDefaultsAdapter) {
+        self.decoder = decoder
+        self.encoder = encoder
+        self.userDefaults = userDefaults
+    }
     
     func write(_ note: Note, to notes: Binding<Data>) {
         var persistedNotes: Notes = read(from: notes)
@@ -63,25 +74,25 @@ class NotesPersistence: NotesWriter, NotesReader, NotesPersistenceBindings {
     
     func makeNotesToRemindPersistenceBinding() -> Binding<Data> {
         return Binding {
-            return UserDefaults.standard.data(forKey: NotesPersitenceKeys.notesToRemindKey) ?? Data()
+            return self.userDefaults.data(forKey: NotesPersitenceKeys.notesToRemindKey) ?? Data()
         } set: { value in
-            UserDefaults.standard.setValue(value, forKey: NotesPersitenceKeys.notesToRemindKey)
+            self.userDefaults.setValue(value, forKey: NotesPersitenceKeys.notesToRemindKey)
         }
     }
     
     func makeUnhandledNotesPersistenceBinding() -> Binding<Data> {
         return Binding {
-            return UserDefaults.standard.data(forKey: NotesPersitenceKeys.unhandledNotes) ?? Data()
+            return self.userDefaults.data(forKey: NotesPersitenceKeys.unhandledNotes) ?? Data()
         } set: { value in
-            UserDefaults.standard.setValue(value, forKey: NotesPersitenceKeys.unhandledNotes)
+            self.userDefaults.setValue(value, forKey: NotesPersitenceKeys.unhandledNotes)
         }
     }
     
     func makeNotesArchivePersistenceBinding() -> Binding<Data> {
         return Binding {
-            return UserDefaults.standard.data(forKey: NotesPersitenceKeys.notesArchive) ?? Data()
+            return self.userDefaults.data(forKey: NotesPersitenceKeys.notesArchive) ?? Data()
         } set: { value in
-            UserDefaults.standard.setValue(value, forKey: NotesPersitenceKeys.notesArchive)
+            self.userDefaults.setValue(value, forKey: NotesPersitenceKeys.notesArchive)
         }
     }
 }
