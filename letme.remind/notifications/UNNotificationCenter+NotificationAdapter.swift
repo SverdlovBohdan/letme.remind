@@ -13,9 +13,13 @@ protocol NotificationCenterAdapter {
     
     func requestAuthorization(options: UNAuthorizationOptions) async throws -> Bool
     func pendingNotificationRequests() async -> [UNNotificationRequest]
-    func notificationSettings() async -> UNNotificationSettings
+    func notificationSettings() async -> NotificationSettingsAdapter
     func add(_ request: UNNotificationRequest) async throws
 }
 
 extension UNUserNotificationCenter: NotificationCenterAdapter {
+    func notificationSettings() async -> NotificationSettingsAdapter {
+        let settings: UNNotificationSettings = await notificationSettings()
+        return settings
+    }
 }

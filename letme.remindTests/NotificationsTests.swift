@@ -10,6 +10,8 @@ import Mockingbird
 @testable import letme_remind
 
 final class NotificationsTests: XCTestCase {
+    struct TestError: Error {}
+    
     var notificationCenterMock: NotificationCenterAdapterMock!
     var notifications: Notifications!
     
@@ -28,10 +30,63 @@ final class NotificationsTests: XCTestCase {
                                                                            content: .init(),
                                                                            trigger: nil)]
         given(await notificationCenterMock.pendingNotificationRequests()).willReturn(expectedPendingNotifications)
-        var pendingNotifications = await notifications.pendingNotifications()
+        let pendingNotifications = await notifications.pendingNotifications()
         
         XCTAssertFalse(pendingNotifications.isEmpty)
         XCTAssertEqual(expectedId, pendingNotifications[0].identifier)
+    }
+    
+    private func setAuthorizationStatus(status: UNAuthorizationStatus) async {
+        let settingsMock: NotificationSettingsAdapterMock = mock(NotificationSettingsAdapter.self)
+        given(settingsMock.authorizationStatus).willReturn(status)
+        given(await notificationCenterMock.notificationSettings()).willReturn(settingsMock)
+    }
+    
+    func testProvidesGrantedPermissionIfUserAllowsNotifications() async {
+        await setAuthorizationStatus(status: .notDetermined)
+        given(await notificationCenterMock.requestAuthorization(options: any())).willReturn(true)
+        let result: Bool = await notifications.isLocalNotificationPermissionsGranted()
+        XCTAssertTrue(result)
+    }
+    
+    func testProvidesDeniedPermissionIfUserDisablesNotifications() async {
+        given(await notificationCenterMock.requestAuthorization(options: any())).willReturn(false)
+        await setAuthorizationStatus(status: .notDetermined)
+        let result: Bool = await notifications.isLocalNotificationPermissionsGranted()
+        XCTAssertFalse(result)
+    }
+    
+    func testProvidesDeniedPermissionIfRequestAuthorizationThrowsException() async {
+        given(await notificationCenterMock.requestAuthorization(options: any())).will { _ in
+            throw TestError()
+        }
+        await setAuthorizationStatus(status: .notDetermined)
+        let result: Bool = await notifications.isLocalNotificationPermissionsGranted()
+        XCTAssertFalse(result)
+    }
+    
+    func testProvidesGrantedPermissionIfStateIsEphemeral() async {
+        await setAuthorizationStatus(status: .ephemeral)
+        let result: Bool = await notifications.isLocalNotificationPermissionsGranted()
+        XCTAssertTrue(result)
+    }
+    
+    func testProvidesGrantedPermissionIfStateIsAuttorized() async {
+        await setAuthorizationStatus(status: .authorized)
+        let result: Bool = await notifications.isLocalNotificationPermissionsGranted()
+        XCTAssertTrue(result)
+    }
+    
+    func testProvidesGrantedPermissionIfStateIsProvisional() async {
+        await setAuthorizationStatus(status: .provisional)
+        let result: Bool = await notifications.isLocalNotificationPermissionsGranted()
+        XCTAssertTrue(result)
+    }
+    
+    func testProvidesDeniedPermission() async {
+        await setAuthorizationStatus(status: .denied)
+        let result: Bool = await notifications.isLocalNotificationPermissionsGranted()
+        XCTAssertFalse(result)
     }
     
     func testPerformanceExample() throws {
