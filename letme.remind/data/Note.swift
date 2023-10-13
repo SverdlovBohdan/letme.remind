@@ -19,6 +19,6 @@ typealias Notes = [Note]
 
 extension Note {
     static func makeTestNote() -> Note {
-        return Note(title: UUID().uuidString, content: "")
+        return Note(title: UUID().uuidString, content: "Note content")
     }
 }

@@ -21,16 +21,24 @@ struct NoteRowView: View {
         return formatter
     }()
         
-    private var presentedText: String {
+    private var presentedTitle: String {
         note.title.isEmpty ? note.content : note.title
     }
     
     private var label: some View {
         HStack {
             VStack(alignment: .leading) {
-                Text(presentedText)
+                Text(presentedTitle)
                     .lineLimit(1)
                     .font(.headline)
+                
+                if !note.content.isEmpty {
+                    Text(note.content)
+                        .lineLimit(3)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                
                 Text(dateFormatter.string(from: note.createdAt))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -70,6 +78,15 @@ struct NoteRowView: View {
 }
 
 #Preview {
-    NoteRowView(note: Note.makeTestNote())
-        .environmentObject(NavigationStore.makeDefault())
+    List {
+        NoteRowView(note: Note.makeTestNote(), kind: .archive)
+            .environmentObject(NavigationStore.makeDefault())
+        NoteRowView(note: Note.makeTestNote())
+            .environmentObject(NavigationStore.makeDefault())
+        NoteRowView(note: Note(title: "Title", content: ""))
+            .environmentObject(NavigationStore.makeDefault())
+        NoteRowView(note: Note(title: "Title", content: String(repeating: "a", count: 100)))
+            .environmentObject(NavigationStore.makeDefault())
+    }
+    .listStyle(.plain)
 }

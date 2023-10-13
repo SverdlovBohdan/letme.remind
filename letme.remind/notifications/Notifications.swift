@@ -59,7 +59,7 @@ class Notifications: LocalNotificationPermissionsProvider, LocalNotificationSche
         assert(!note.title.isEmpty || !note.content.isEmpty)
         
         let notificationContent: UNMutableNotificationContent = UNMutableNotificationContent()
-        notificationContent.title = note.title.isEmpty ? "Kindly reminder" : note.title
+        notificationContent.title = note.title.isEmpty ? String(localized: "Kindly reminder") : note.title
         notificationContent.body = note.content
         
         var trigger: UNNotificationTrigger? = nil

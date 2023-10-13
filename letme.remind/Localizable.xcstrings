@@ -59,6 +59,17 @@
         }
       }
     },
+    "Kindly reminder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нагадування"
+          }
+        }
+      }
+    },
     "Local notifications are disabled" : {
       "extractionState" : "manual",
       "localizations" : {
