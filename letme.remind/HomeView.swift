@@ -80,7 +80,8 @@ struct HomeView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button {
                         Task {
-                            let newNote: Note = Note(title: "testTitle", content: "Testcontn")
+                            let newNote: Note = Note(title: "testTitle", content: "Testcontn",
+                                                     color: Color.green.description)
                             Notifications.standart.scheduleTestNotification(note: newNote)
                             notesWriter.write(newNote,to: $notesPayload)
                         }

@@ -11,7 +11,7 @@ struct NoteView: View {
     
     private var notesWriter: NotesWriter = Environment.forceResolve(type: NotesWriter.self)
     private var notifications: LocalNotificationScheduler =
-        Environment.forceResolve(type: LocalNotificationScheduler.self)
+    Environment.forceResolve(type: LocalNotificationScheduler.self)
     
     private let noteToPreview: Note?
     private var isPreview: Bool {
@@ -41,6 +41,10 @@ struct NoteView: View {
             .pickerStyle(.inline)
             
             Section {
+                ColorTagPickerView { colorTag in
+                    store.dispatch(action: .setColorTag(colorTag))
+                }
+                
                 TextField(String(localized: "Title"), text: makeTitleBinding())
                 
                 TextField(String(localized: "Note content"),
@@ -58,7 +62,7 @@ struct NoteView: View {
                 }
                 .disabled(!store.isValid)
             }
-             
+            
             ToolbarItemGroup(placement: .cancellationAction) {
                 Button(String(localized: "Forget")) {
                     assert(noteToPreview != nil, "Call 'Forget' without known Note")
@@ -110,7 +114,8 @@ struct NoteView: View {
     private func tryToScheduleNewNote(when: WhenToRemind) -> Void {
         if store.isValid {
             let newNote: Note = Note(title: store.title,
-                                     content: store.content)
+                                     content: store.content,
+                                     color: store.colorTag)
             Task { @MainActor in
                 let result = await notifications.schedule(note: newNote, when: remindOption)
                 

@@ -20,7 +20,7 @@ struct NoteRowView: View {
         formatter.dateFormat = "dd.MM.yyyy"
         return formatter
     }()
-        
+    
     private var presentedTitle: String {
         note.title.isEmpty ? note.content : note.title
     }
@@ -39,9 +39,17 @@ struct NoteRowView: View {
                         .foregroundStyle(.secondary)
                 }
                 
-                Text(dateFormatter.string(from: note.createdAt))
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                HStack {
+                    if let colorName = note.color {
+                        Circle()
+                            .frame(width: 4, height: 4)
+                            .foregroundStyle(PickerColors.getColor(by: colorName))
+                    }
+                    
+                    Text(dateFormatter.string(from: note.createdAt))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
             }
             
             if kind == .unhandled {
@@ -85,8 +93,9 @@ struct NoteRowView: View {
             .environmentObject(NavigationStore.makeDefault())
         NoteRowView(note: Note(title: "Title", content: ""))
             .environmentObject(NavigationStore.makeDefault())
-        NoteRowView(note: Note(title: "Title", content: String(repeating: "a", count: 100)))
-            .environmentObject(NavigationStore.makeDefault())
+        NoteRowView(note: Note(title: "Title", content: String(repeating: "a", count: 100),
+                               color: Color.green.description))
+        .environmentObject(NavigationStore.makeDefault())
     }
     .listStyle(.plain)
 }

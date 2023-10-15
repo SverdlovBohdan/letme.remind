@@ -19,6 +19,7 @@ struct ArchiveView: View {
     
     @ViewBuilder private var content: some View {
         if notesReader.count($notesArchivePayload) != 0 {
+            //TODO: Search
             List {
                 ForEach(archiveNotes) { note in
                     NoteRowView(note: note, kind: .archive)

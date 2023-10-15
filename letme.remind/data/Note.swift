@@ -10,9 +10,11 @@ import Foundation
 struct Note: Codable, Identifiable, Hashable {
     var id = UUID()
     var createdAt: Date = Date()
+    var tags: Set<String> = Set<String>()
     
     var title: String
     var content: String
+    var color: String?
 }
 
 typealias Notes = [Note]
