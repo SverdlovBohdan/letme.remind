@@ -44,7 +44,11 @@ struct NoteView: View {
                 ColorTagPickerView { colorTag in
                     store.dispatch(action: .setColorTag(colorTag))
                 }
-                
+            } header: {
+                Text(String(localized: "tags"))
+            }
+            
+            Section {
                 TextField(String(localized: "Title"), text: makeTitleBinding())
                 
                 TextField(String(localized: "Note content"),

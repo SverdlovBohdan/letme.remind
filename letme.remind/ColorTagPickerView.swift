@@ -7,19 +7,10 @@
 
 import SwiftUI
 
-struct PickerColors {
-    static let colors: [Color] = [.orange, .blue, .green, .yellow, .red, .white]
-    
-    static func getColor(by name: String) -> Color {
-        return colors.first { color in
-            return color.description == name
-        }!
-    }
-}
-
 struct ColorTagPickerView: View {
     @State private var pickedIndex: Int = 0
-    private let colors: [Color] = PickerColors.colors
+    private let colorsProvider: PickerColorsProvider = 
+        Environment.forceResolve(type: PickerColorsProvider.self)
     private var onPickedColorChange: ((String?) -> Void)?
     
     init(onChange: ((String?) -> Void)? = nil) {
@@ -28,16 +19,15 @@ struct ColorTagPickerView: View {
     
     var body: some View {
         HStack {
-            ForEach(colors.indices, id: \.self) { idx in
-                makeColorCircle(for: colors[idx], index: idx)
+            ForEach(colorsProvider.colors.indices, id: \.self) { idx in
+                makeColorCircle(for: colorsProvider.colors[idx], index: idx)
                     .onTapGesture {
                         pickedIndex = idx
-                        onPickedColorChange?(pickedIndex < colors.count - 1 ? colors[pickedIndex].description : nil)
+                        let color = pickedIndex < colorsProvider.colors.count - 1 ? 
+                            colorsProvider.colors[pickedIndex].description : nil
+                        onPickedColorChange?(color)
                     }
             }
-        }
-        .onAppear {
-            pickedIndex = colors.endIndex - 1
         }
     }
     
@@ -49,12 +39,13 @@ struct ColorTagPickerView: View {
                 .opacity(index == pickedIndex ? 1.0 : 0.0)
                 .animation(.easeIn, value: pickedIndex)
             
-            if color != Color.white {
+            if color != colorsProvider.getUnpickableColor() {
                 Circle()
                     .foregroundStyle(color)
             } else {
                 Circle()
                     .foregroundStyle(color)
+                    .opacity(0.0)
                     .overlay(content: {
                         Circle()
                             .stroke(Color.gray, style: StrokeStyle(lineWidth: 2.0))

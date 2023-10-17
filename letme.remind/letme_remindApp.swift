@@ -26,6 +26,11 @@ struct letme_remindApp: App {
         }
         .inObjectScope(.container)
         
+        Environment.shared.register(PickerColorsProvider.self) { _ in
+            return PickerColors()
+        }
+        .inObjectScope(.container)
+        
         Environment.shared.register(NotesWriter.self) { _ in
             return NotesPersistence()
         }

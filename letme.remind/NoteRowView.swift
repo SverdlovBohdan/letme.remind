@@ -15,6 +15,9 @@ struct NoteRowView: View {
     
     @EnvironmentObject var navigation: NavigationStore
     
+    private var colorsProvider: PickerColorsProvider =
+        Environment.forceResolve(type: PickerColorsProvider.self)
+    
     private var dateFormatter: DateFormatter = {
         let formatter: DateFormatter = .init()
         formatter.dateFormat = "dd.MM.yyyy"
@@ -43,7 +46,7 @@ struct NoteRowView: View {
                     if let colorName = note.color {
                         Circle()
                             .frame(width: 4, height: 4)
-                            .foregroundStyle(PickerColors.getColor(by: colorName))
+                            .foregroundStyle(colorsProvider.getColor(by: colorName))
                     }
                     
                     Text(dateFormatter.string(from: note.createdAt))
