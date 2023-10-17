@@ -13,10 +13,10 @@ class Notifications: LocalNotificationPermissionsProvider, LocalNotificationSche
     static private let SECONDS_IN_DAY: TimeInterval = 86_400
     
     private var notificationCenter: NotificationCenterAdapter =
-        Environment.forceResolve(type: NotificationCenterAdapter.self)
+        AppEnvironment.forceResolve(type: NotificationCenterAdapter.self)
     
     private var logger: Logger =
-        Environment.forceResolve(type: Logger.self, arg1: String(describing: Notifications.self))
+        AppEnvironment.forceResolve(type: Logger.self, arg1: String(describing: Notifications.self))
     
     init() {}
     

@@ -2,7 +2,25 @@
   "sourceLanguage" : "en",
   "strings" : {
     "%lld" : {
-
+      "localizations" : {
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld"
+          }
+        }
+      }
+    },
+    "+ tag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+ тег"
+          }
+        }
+      }
     },
     "Archive" : {
       "extractionState" : "manual",
@@ -131,7 +149,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Побацім коли"
+            "value" : "Колись"
           }
         }
       }
@@ -220,6 +238,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "На протязі 30 днів"
+          }
+        }
+      }
+    },
+    "X" : {
+      "localizations" : {
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Х"
           }
         }
       }

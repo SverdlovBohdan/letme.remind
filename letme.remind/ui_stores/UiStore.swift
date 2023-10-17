@@ -17,7 +17,7 @@ class UiStore<Action, State>: ObservableObject where Action: CustomStringConvert
     private var reduce: (inout State, Action) -> Void
     
     private var logger: Logger =
-        Environment.forceResolve(type: Logger.self, arg1: String(describing: UiStore<Action, State>.self))
+        AppEnvironment.forceResolve(type: Logger.self, arg1: String(describing: UiStore<Action, State>.self))
     
     init(initialState: State, reducer: @escaping (inout State, Action) -> Void) {
         self.state = initialState

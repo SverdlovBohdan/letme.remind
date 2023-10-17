@@ -9,9 +9,9 @@ struct NoteView: View {
     @StateObject private var store: MakeNewNoteStore = .makeDefault()
     @State private var remindOption: WhenToRemind = .within7Days
     
-    private var notesWriter: NotesWriter = Environment.forceResolve(type: NotesWriter.self)
+    private var notesWriter: NotesWriter = AppEnvironment.forceResolve(type: NotesWriter.self)
     private var notifications: LocalNotificationScheduler =
-    Environment.forceResolve(type: LocalNotificationScheduler.self)
+    AppEnvironment.forceResolve(type: LocalNotificationScheduler.self)
     
     private let noteToPreview: Note?
     private var isPreview: Bool {
@@ -43,6 +43,11 @@ struct NoteView: View {
             Section {
                 ColorTagPickerView { colorTag in
                     store.dispatch(action: .setColorTag(colorTag))
+                }
+                    
+                // TODO: remove white hardcode
+                TagsInputView(color: store.colorTag) { _ in
+                    
                 }
             } header: {
                 Text(String(localized: "tags"))

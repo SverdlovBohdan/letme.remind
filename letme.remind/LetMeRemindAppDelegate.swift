@@ -13,13 +13,13 @@ class LetMeRemindAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificatio
     private var navigationStore: NavigationStore? = nil
     
     private var notesPersistenceBinding: NotesPersistenceBindings =
-        Environment.forceResolve(type: NotesPersistenceBindings.self)
+        AppEnvironment.forceResolve(type: NotesPersistenceBindings.self)
     
-    private var notesReader: NotesReader = Environment.forceResolve(type: NotesReader.self)
-    private var notesWriter: NotesWriter = Environment.forceResolve(type: NotesWriter.self)
+    private var notesReader: NotesReader = AppEnvironment.forceResolve(type: NotesReader.self)
+    private var notesWriter: NotesWriter = AppEnvironment.forceResolve(type: NotesWriter.self)
     
     private var notificationCenter: NotificationCenterAdapter =
-        Environment.forceResolve(type: NotificationCenterAdapter.self)
+        AppEnvironment.forceResolve(type: NotificationCenterAdapter.self)
 
     func application(_ application: UIApplication,
                      willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {

@@ -16,28 +16,28 @@ struct letme_remindApp: App {
     @StateObject var navigationStore: NavigationStore = .makeDefault()
     
     init() {        
-        Environment.shared.register(NotificationCenterAdapter.self) { _ in
+        AppEnvironment.shared.register(NotificationCenterAdapter.self) { _ in
             return UNUserNotificationCenter.current()
         }
         .inObjectScope(.container)
         
-        Environment.shared.register(UserDefaultsAdapter.self) { _ in
+        AppEnvironment.shared.register(UserDefaultsAdapter.self) { _ in
             return UserDefaults.standard
         }
         .inObjectScope(.container)
         
-        Environment.shared.register(PickerColorsProvider.self) { _ in
+        AppEnvironment.shared.register(PickerColorsProvider.self) { _ in
             return PickerColors()
         }
         .inObjectScope(.container)
         
-        Environment.shared.register(NotesWriter.self) { _ in
+        AppEnvironment.shared.register(NotesWriter.self) { _ in
             return NotesPersistence()
         }
         .inObjectScope(.container)
         .implements(NotesReader.self, NotesPersistenceBindings.self)
         
-        Environment.shared.register(LocalNotificationPermissionsProvider.self) { _ in
+        AppEnvironment.shared.register(LocalNotificationPermissionsProvider.self) { _ in
             return Notifications()
         }
         .inObjectScope(.container)

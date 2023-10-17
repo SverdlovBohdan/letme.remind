@@ -9,7 +9,7 @@ import Swinject
 import os
 import Foundation
 
-struct Environment {
+struct AppEnvironment {
     static let shared: Container = {
         var container = Container()
         

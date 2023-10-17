@@ -14,10 +14,10 @@ class NotesPersistence: NotesWriter, NotesReader, NotesPersistenceBindings {
     private var decoder: JSONDecoder = .init()
     private var encoder: JSONEncoder = .init()
     
-    private var userDefaults: UserDefaultsAdapter = Environment.forceResolve(type: UserDefaultsAdapter.self)
+    private var userDefaults: UserDefaultsAdapter = AppEnvironment.forceResolve(type: UserDefaultsAdapter.self)
     
     private var logger: Logger =
-        Environment.forceResolve(type: Logger.self, arg1: String(describing: NotesPersistence.self))
+        AppEnvironment.forceResolve(type: Logger.self, arg1: String(describing: NotesPersistence.self))
     
     init() {}
     

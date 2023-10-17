@@ -14,12 +14,12 @@ struct HomeView: View {
     @StateObject private var viewStore: HomeViewStore = .makeDefault()
     
     private var notificationPermissions: LocalNotificationPermissionsProvider =
-        Environment.forceResolve(type: LocalNotificationPermissionsProvider.self)
+        AppEnvironment.forceResolve(type: LocalNotificationPermissionsProvider.self)
     private var notificationsProvider: LocalNotificationProvider =
-        Environment.forceResolve(type: LocalNotificationProvider.self)
+        AppEnvironment.forceResolve(type: LocalNotificationProvider.self)
     
-    private var notesReader: NotesReader = Environment.forceResolve(type: NotesReader.self)
-    private var notesWriter: NotesWriter = Environment.forceResolve(type: NotesWriter.self)
+    private var notesReader: NotesReader = AppEnvironment.forceResolve(type: NotesReader.self)
+    private var notesWriter: NotesWriter = AppEnvironment.forceResolve(type: NotesWriter.self)
     
     var body: some View {
         NavigationStack(path: $navigation.navigationPath) {

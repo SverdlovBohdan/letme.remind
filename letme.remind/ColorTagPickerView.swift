@@ -10,7 +10,7 @@ import SwiftUI
 struct ColorTagPickerView: View {
     @State private var pickedIndex: Int = 0
     private let colorsProvider: PickerColorsProvider = 
-        Environment.forceResolve(type: PickerColorsProvider.self)
+        AppEnvironment.forceResolve(type: PickerColorsProvider.self)
     private var onPickedColorChange: ((String?) -> Void)?
     
     init(onChange: ((String?) -> Void)? = nil) {

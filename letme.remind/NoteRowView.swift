@@ -16,7 +16,7 @@ struct NoteRowView: View {
     @EnvironmentObject var navigation: NavigationStore
     
     private var colorsProvider: PickerColorsProvider =
-        Environment.forceResolve(type: PickerColorsProvider.self)
+        AppEnvironment.forceResolve(type: PickerColorsProvider.self)
     
     private var dateFormatter: DateFormatter = {
         let formatter: DateFormatter = .init()

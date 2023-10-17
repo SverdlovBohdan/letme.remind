@@ -10,8 +10,8 @@ import SwiftUI
 struct ArchiveView: View {
     @AppStorage(NotesPersitenceKeys.notesArchive) private var notesArchivePayload: Data = Data()
     
-    private var notesReader: NotesReader = Environment.forceResolve(type: NotesReader.self)
-    private var notesWriter: NotesWriter = Environment.forceResolve(type: NotesWriter.self)
+    private var notesReader: NotesReader = AppEnvironment.forceResolve(type: NotesReader.self)
+    private var notesWriter: NotesWriter = AppEnvironment.forceResolve(type: NotesWriter.self)
     
     private var archiveNotes: Notes {
         notesReader.read(from: $notesArchivePayload)
