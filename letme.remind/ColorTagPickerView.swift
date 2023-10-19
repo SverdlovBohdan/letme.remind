@@ -23,8 +23,9 @@ struct ColorTagPickerView: View {
                 makeColorCircle(for: colorsProvider.colors[idx], index: idx)
                     .onTapGesture {
                         pickedIndex = idx
-                        let color = pickedIndex < colorsProvider.colors.count - 1 ? 
-                            colorsProvider.colors[pickedIndex].description : nil
+                        let isPickableColor =
+                            colorsProvider.colors.firstIndex(of: colorsProvider.getUnpickableColor()) != pickedIndex
+                        let color = isPickableColor ? colorsProvider.colors[pickedIndex].description : nil
                         onPickedColorChange?(color)
                     }
             }

@@ -11,7 +11,7 @@ import SwiftUI
 struct TagsInputView: View {
     @Environment(\.colorScheme) var colorScheme
     
-    @State private var tags: Set<String> = .init()
+    @State private var tags: [String] = .init()
     @State private var inputTag: String = ""
     
     private let padding: CGFloat = 6
@@ -20,6 +20,10 @@ struct TagsInputView: View {
     
     typealias OnTagChange = ((Set<String>) -> Void)
     private var onTagChange: OnTagChange?
+    
+    private var uniqueTags: Set<String> {
+        Set<String>(tags)
+    }
     
     var color: Color
     
@@ -36,41 +40,40 @@ struct TagsInputView: View {
     }
     
     var body: some View {
-        HStack {
-            if !tags.isEmpty {
-                ForEach(tags.sorted(), id: \.self) { tag in
-                    HStack {
-                        Text("X")
-                            .padding(.all, padding)
-                            .circleStrokeWithRespectToPickedColorAndColorScheme(color, colorScheme,
-                                                                                colorsProvider: colorsProvider)
-                        Text(tag)
-                            .lineLimit(1)
+        HStack {            
+            ForEach(tags, id: \.self) { tag in
+                HStack {
+                    Image(systemName: "trash.circle")
+                        .foregroundStyle(colorScheme == .light ? .black : .white)
+                    Text(tag)
+                        .lineLimit(1)
+                }
+                .padding(.all, padding)
+                .capsuleBackgroundWithRespectToPickedColor(color, colorsProvider: colorsProvider)
+                .onTapGesture {
+                    tags.removeAll { item in
+                        item == tag
                     }
-                    .padding(.all, padding)
-                    .capsuleBackgroundWithRespectToPickedColor(color, colorsProvider: colorsProvider)
-                    .onTapGesture {
-                        tags.remove(tag)
-                        onTagChange?(tags)
-                    }
+                    onTagChange?(uniqueTags)
                 }
             }
             
             TextField(String(localized: "+ tag"), text: $inputTag)
                 .onSubmit {
-                    if !inputTag.isEmpty {
-                        tags.insert(inputTag)
+                    if !inputTag.isEmpty && !tags.contains(where: { item in
+                        item == inputTag
+                    }) {
+                        tags.append(inputTag)
                         inputTag.removeAll()
-                        onTagChange?(tags)
+                        onTagChange?(uniqueTags)
                     }
                 }
         }
-        .animation(.easeInOut, value: tags)
     }
 }
 
 extension TagsInputView {
-    fileprivate init(tags: Set<String>, color: String?, colorsProvider: PickerColorsProvider? = nil) {
+    fileprivate init(tags: Array<String>, color: String?, colorsProvider: PickerColorsProvider? = nil) {
         self._tags = State(initialValue: tags)
         self.colorsProvider = colorsProvider ?? AppEnvironment.forceResolve(type: PickerColorsProvider.self)
         self.color = color != nil ? self.colorsProvider.getColor(by: color!) : self.colorsProvider.getUnpickableColor()

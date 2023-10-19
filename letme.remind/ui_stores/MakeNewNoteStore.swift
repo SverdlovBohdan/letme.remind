@@ -9,6 +9,7 @@ enum MakeNewNoteAction: CustomStringConvertible {
     case validate
     case fillBy(Note)
     case setColorTag(String?)
+    case setTags(Set<String>)
     
     var description: String {
         switch self {
@@ -18,6 +19,8 @@ enum MakeNewNoteAction: CustomStringConvertible {
             return "fillBy"
         case .setColorTag(_):
             return "setColorTag"
+        case .setTags(_):
+            return "setTags"
         }
     }
 }
@@ -26,6 +29,7 @@ struct MakeNewNoteState {
     var isValid: Bool = false
     var title: String = ""
     var content: String = ""
+    var tags: Set<String> = .init()
     var colorTag: String?
 }
 
@@ -44,6 +48,9 @@ func makeNewNoteReducer(currentState: inout MakeNewNoteState,
         
     case .setColorTag(let tag):
         currentState.colorTag = tag
+        
+    case .setTags(let tags):
+        currentState.tags = tags
     }
 }
 

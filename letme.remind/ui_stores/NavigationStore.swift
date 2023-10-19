@@ -43,7 +43,7 @@ func navigationReducer(currentState: inout NavigationState,
         }
         
     case .openRootView:
-        currentState.navigationPath = NavigationPath()
+        currentState.navigationPath.removeLast(currentState.navigationPath.count)
     }
 }
 

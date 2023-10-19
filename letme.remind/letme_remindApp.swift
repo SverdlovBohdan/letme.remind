@@ -13,7 +13,6 @@ import os
 @main
 struct letme_remindApp: App {
     @UIApplicationDelegateAdaptor(LetMeRemindAppDelegate.self) var appDelegate
-    @StateObject var navigationStore: NavigationStore = .makeDefault()
     
     init() {        
         AppEnvironment.shared.register(NotificationCenterAdapter.self) { _ in
@@ -47,11 +46,9 @@ struct letme_remindApp: App {
     
     var body: some Scene {
         WindowGroup {
-            MainView()
-                .environmentObject(navigationStore)
-                .onAppear(perform: {
-                    appDelegate.setNavigationStore(navigationStore)
-                })
+            MainView { store in
+                appDelegate.setNavigationStore(store)
+            }
         }
     }
 }

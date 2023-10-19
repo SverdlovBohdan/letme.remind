@@ -1,6 +1,10 @@
 import SwiftUI
 
 struct MainView: View {
+    @StateObject var navigationStore: NavigationStore = .makeDefault()
+    
+    var setNavigationStore: (NavigationStore) -> Void
+    
     var body: some View {
         TabView {
             HomeView()
@@ -13,12 +17,17 @@ struct MainView: View {
                     Label(String(localized: "Archive"), systemImage: "archivebox")
                 }
         }
+        .environmentObject(navigationStore)
+        .onAppear(perform: {
+            setNavigationStore(navigationStore)
+        })
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        MainView()
-            .environmentObject(NavigationStore.makeDefault())
+        MainView { _ in
+            
+        }
     }
 }

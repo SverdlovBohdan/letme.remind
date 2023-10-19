@@ -46,9 +46,10 @@ struct NoteView: View {
                 }
                     
                 // TODO: remove white hardcode
-                TagsInputView(color: store.colorTag) { _ in
-                    
+                TagsInputView(color: store.colorTag) { tags in
+                    store.dispatch(action: .setTags(tags))
                 }
+                .animation(.easeInOut, value: store.tags)
             } header: {
                 Text(String(localized: "tags"))
             }
