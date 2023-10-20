@@ -11,9 +11,7 @@ import os
 //TODO: Support multi line tags container
 struct TagsInputView: View {
     @Environment(\.colorScheme) var colorScheme
-    
-    @State private var tags: [String] = .init()
-    @State private var inputTag: String = ""
+    @StateObject private var store: TagsInputStore = .makeDefault()
     
     private let padding: CGFloat = 6
     private let strokePadding: CGFloat = 2
@@ -21,7 +19,7 @@ struct TagsInputView: View {
     
     private var colorsProvider: PickerColorsProvider = AppEnvironment.forceResolve(type: PickerColorsProvider.self)
     private var logger: Logger =
-    AppEnvironment.forceResolve(type: Logger.self, arg1: String(describing: TagsInputView.self))
+        AppEnvironment.forceResolve(type: Logger.self, arg1: String(describing: TagsInputView.self))
     
     typealias OnTagChange = ((Set<String>) -> Void)
     private var onTagChange: OnTagChange?
@@ -44,7 +42,7 @@ struct TagsInputView: View {
         ScrollViewReader { scrollProxy in
             ScrollView(.horizontal) {
                 HStack(spacing: 0) {
-                    ForEach(tags, id: \.self) { tag in
+                    ForEach(store.tags, id: \.self) { tag in
                         HStack {
                             Image(systemName: "trash.circle")
                                 .foregroundStyle(colorScheme == .light ? .black : .white)
@@ -55,26 +53,19 @@ struct TagsInputView: View {
                         .capsuleBackgroundWithRespectToPickedColor(color, colorsProvider: colorsProvider)
                         .padding(.all, strokePadding)
                         .onTapGesture {
-                            tags.removeAll { item in
-                                item == tag
-                            }
+                            store.dispatch(action: .removeTag(tag))
                         }
                     }
                     
-                    TextField(String(localized: "+ tag"), text: $inputTag)
+                    TextField(String(localized: "+ tag"), text: $store.inputTag)
                         .id(tagInputId)
                         .padding([.top, .bottom], strokePadding + padding)
                         .onSubmit {
-                            if !inputTag.isEmpty && !tags.contains(where: { item in
-                                item == inputTag
-                            }) {
-                                tags.append(inputTag)
-                                inputTag.removeAll()
-                            }
+                            store.dispatch(action: .addNewTag)
                         }
                 }
             }
-            .onChange(of: tags, perform: { newTags in
+            .onChange(of: store.tags, perform: { newTags in
                 logger.debug("Tags has been changed: \(newTags)")
                 scrollProxy.scrollTo(tagInputId)
                 onTagChange?(Set<String>(newTags))
@@ -85,7 +76,7 @@ struct TagsInputView: View {
 
 extension TagsInputView {
     fileprivate init(tags: Array<String>, color: String?, colorsProvider: PickerColorsProvider? = nil) {
-        self._tags = State(initialValue: tags)
+        self._store = StateObject(wrappedValue: TagsInputStore(initialState: .init(tags: tags, inputTag: ""), reducer: tagsInputReducer))
         self.colorsProvider = colorsProvider ?? AppEnvironment.forceResolve(type: PickerColorsProvider.self)
         self.color = color != nil ? self.colorsProvider.getColor(by: color!) : self.colorsProvider.getUnpickableColor()
     }
