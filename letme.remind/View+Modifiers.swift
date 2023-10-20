@@ -16,9 +16,8 @@ struct CapsuleBackgroundWithRespectToPickedColor: ViewModifier {
         if colorsProvider.getUnpickableColor() != color {
             content.background(Capsule().fill(color))
         } else {
-            content.overlay {
-                Capsule().stroke(Color.gray, style: StrokeStyle(lineWidth: 2.0))
-            }
+            content.background(Capsule().stroke(
+                Color.gray, style: StrokeStyle(lineWidth: 2.0)))
         }
     }
 }

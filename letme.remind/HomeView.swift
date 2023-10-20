@@ -24,9 +24,12 @@ struct HomeView: View {
     var body: some View {
         NavigationStack(path: $navigation.navigationPath) {
             VStack {
-                Text("\(notesReader.count($notesPayload))")
-                    .font(.largeTitle)
-                Text(String(localized: "notes in memory"))
+                Group {
+                    Text("\(notesReader.count($notesPayload))")
+                        .font(.largeTitle)
+                    Text(String(localized: "notes in memory"))
+                }
+                .animation(.bouncy, value: unhandledNotesPayload)
                                 
                 if notesReader.count($unhandledNotesPayload) != 0 {
                     List {
@@ -73,7 +76,6 @@ struct HomeView: View {
             .task {
                 await updateUnhandledNotes()
             }
-            .animation(.bouncy, value: unhandledNotesPayload)
  
             #if DEBUG
             .toolbar {

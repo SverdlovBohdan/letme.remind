@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import os
 
 //TODO: Support multi line tags container
 struct TagsInputView: View {
@@ -15,15 +16,15 @@ struct TagsInputView: View {
     @State private var inputTag: String = ""
     
     private let padding: CGFloat = 6
+    private let strokePadding: CGFloat = 2
+    private let tagInputId: Int = 13
     
     private var colorsProvider: PickerColorsProvider = AppEnvironment.forceResolve(type: PickerColorsProvider.self)
+    private var logger: Logger =
+    AppEnvironment.forceResolve(type: Logger.self, arg1: String(describing: TagsInputView.self))
     
     typealias OnTagChange = ((Set<String>) -> Void)
     private var onTagChange: OnTagChange?
-    
-    private var uniqueTags: Set<String> {
-        Set<String>(tags)
-    }
     
     var color: Color
     
@@ -40,34 +41,44 @@ struct TagsInputView: View {
     }
     
     var body: some View {
-        HStack {            
-            ForEach(tags, id: \.self) { tag in
-                HStack {
-                    Image(systemName: "trash.circle")
-                        .foregroundStyle(colorScheme == .light ? .black : .white)
-                    Text(tag)
-                        .lineLimit(1)
-                }
-                .padding(.all, padding)
-                .capsuleBackgroundWithRespectToPickedColor(color, colorsProvider: colorsProvider)
-                .onTapGesture {
-                    tags.removeAll { item in
-                        item == tag
+        ScrollViewReader { scrollProxy in
+            ScrollView(.horizontal) {
+                HStack(spacing: 0) {
+                    ForEach(tags, id: \.self) { tag in
+                        HStack {
+                            Image(systemName: "trash.circle")
+                                .foregroundStyle(colorScheme == .light ? .black : .white)
+                            Text(tag)
+                                .lineLimit(1)
+                        }
+                        .padding(.all, padding)
+                        .capsuleBackgroundWithRespectToPickedColor(color, colorsProvider: colorsProvider)
+                        .padding(.all, strokePadding)
+                        .onTapGesture {
+                            tags.removeAll { item in
+                                item == tag
+                            }
+                        }
                     }
-                    onTagChange?(uniqueTags)
+                    
+                    TextField(String(localized: "+ tag"), text: $inputTag)
+                        .id(tagInputId)
+                        .padding([.top, .bottom], strokePadding + padding)
+                        .onSubmit {
+                            if !inputTag.isEmpty && !tags.contains(where: { item in
+                                item == inputTag
+                            }) {
+                                tags.append(inputTag)
+                                inputTag.removeAll()
+                            }
+                        }
                 }
             }
-            
-            TextField(String(localized: "+ tag"), text: $inputTag)
-                .onSubmit {
-                    if !inputTag.isEmpty && !tags.contains(where: { item in
-                        item == inputTag
-                    }) {
-                        tags.append(inputTag)
-                        inputTag.removeAll()
-                        onTagChange?(uniqueTags)
-                    }
-                }
+            .onChange(of: tags, perform: { newTags in
+                logger.debug("Tags has been changed: \(newTags)")
+                scrollProxy.scrollTo(tagInputId)
+                onTagChange?(Set<String>(newTags))
+            })
         }
     }
 }

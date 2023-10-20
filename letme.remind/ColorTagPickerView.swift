@@ -28,8 +28,14 @@ struct ColorTagPickerView: View {
                         let color = isPickableColor ? colorsProvider.colors[pickedIndex].description : nil
                         onPickedColorChange?(color)
                     }
+                
+                if idx != colorsProvider.colors.count - 1 {
+                    Spacer()
+                }
             }
         }
+        .padding([.leading, .trailing], 2)
+        .frame(maxHeight: 48)
     }
     
     private func makeColorCircle(for color: Color, index: Int!) -> some View {

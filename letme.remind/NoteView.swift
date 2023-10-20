@@ -31,40 +31,63 @@ struct NoteView: View {
     }
     
     var body: some View {
-        Form {
-            Picker(String(localized: "Remind"), selection: $remindOption) {
-                Text(String(localized: "Within 7 days")).tag(WhenToRemind.within7Days)
-                Text(String(localized: "Within 30 days")).tag(WhenToRemind.within30Days)
-                Text(String(localized: "In this month")).tag(WhenToRemind.inThisMonth)
-                Text(String(localized: "Random")).tag(WhenToRemind.someday)
-            }
-            .pickerStyle(.inline)
-            
-            Section {
-                ColorTagPickerView { colorTag in
-                    store.dispatch(action: .setColorTag(colorTag))
-                }
-                    
-                // TODO: remove white hardcode
-                TagsInputView(color: store.colorTag) { tags in
-                    store.dispatch(action: .setTags(tags))
-                }
-                .animation(.easeInOut, value: store.tags)
-            } header: {
-                Text(String(localized: "tags"))
-            }
-            
-            Section {
-                TextField(String(localized: "Title"), text: makeTitleBinding())
+        ScrollView {
+            HStack {
+                Text(String(localized: "Remind"))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .textCase(.uppercase)
                 
-                TextField(String(localized: "Note content"),
-                          text: makeContentBinding(),
-                          axis: .vertical)
-                .lineLimit(10, reservesSpace: true)
-            } header: {
-                Text(String(localized: "note"))
+                Spacer()
+                
+                Picker(String(localized: "Remind"), selection: $remindOption) {
+                    Text(String(localized: "Within 7 days")).tag(WhenToRemind.within7Days)
+                    Text(String(localized: "Within 30 days")).tag(WhenToRemind.within30Days)
+                    Text(String(localized: "In this month")).tag(WhenToRemind.inThisMonth)
+                    Text(String(localized: "Random")).tag(WhenToRemind.someday)
+                }
+                .pickerStyle(.menu)
             }
+            
+            HStack {
+                Text(String(localized: "tags"))
+                    .padding(.top)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .textCase(.uppercase)
+                Spacer()
+            }
+            
+            ColorTagPickerView { colorTag in
+                store.dispatch(action: .setColorTag(colorTag))
+            }
+            
+            TagsInputView(color: store.colorTag) { tags in
+                store.dispatch(action: .setTags(tags))
+            }
+            Divider()
+            
+            HStack {
+                Text(String(localized: "note"))
+                    .padding(.top)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .textCase(.uppercase)
+                
+                Spacer()
+            }
+            
+            TextField(String(localized: "Title"), text: makeTitleBinding())
+            Divider()
+            
+            TextField(String(localized: "Note content"),
+                      text: makeContentBinding(),
+                      axis: .vertical)
+            .lineLimit(15)
+            
+            Spacer()
         }
+        .padding()
         .toolbar {
             ToolbarItemGroup(placement: .confirmationAction) {
                 Button(confirmationActionText) {
