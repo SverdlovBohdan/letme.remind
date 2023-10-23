@@ -13,10 +13,14 @@ struct NoteRowView: View {
         case archive
     }
     
+    @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var navigation: NavigationStore
     
+    private let padding: CGFloat = 6
+    private let strokePadding: CGFloat = 2
+    
     private var colorsProvider: PickerColorsProvider =
-        AppEnvironment.forceResolve(type: PickerColorsProvider.self)
+    AppEnvironment.forceResolve(type: PickerColorsProvider.self)
     
     private var dateFormatter: DateFormatter = {
         let formatter: DateFormatter = .init()
@@ -29,7 +33,7 @@ struct NoteRowView: View {
     }
     
     private var label: some View {
-        HStack {
+        return HStack {
             VStack(alignment: .leading) {
                 Text(presentedTitle)
                     .lineLimit(1)
@@ -42,17 +46,27 @@ struct NoteRowView: View {
                         .foregroundStyle(.secondary)
                 }
                 
-                HStack {
-                    if let colorName = note.color {
-                        Circle()
-                            .frame(width: 4, height: 4)
-                            .foregroundStyle(colorsProvider.getColor(by: colorName))
+                if !note.tags.isEmpty {
+                    ScrollView(.horizontal) {
+                        HStack(spacing: 0) {
+                            ForEach(note.tags.sorted(), id: \.self) { tag in
+                                Text(tag)
+                                    .font(.subheadline)
+                                    .lineLimit(1)
+                                    .padding(.all, padding)
+                                    .capsuleBackgroundWithRespectToPickedColor(note.color != nil ?
+                                                                               colorsProvider.getColor(by: note.color!)
+                                                                               : colorsProvider.getUnpickableColor(),
+                                                                               colorsProvider: colorsProvider)
+                                    .padding(.all, strokePadding)
+                            }
+                        }
                     }
-                    
-                    Text(dateFormatter.string(from: note.createdAt))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
                 }
+                
+                Text(dateFormatter.string(from: note.createdAt))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             }
             
             if kind == .unhandled {
@@ -96,8 +110,10 @@ struct NoteRowView: View {
             .environmentObject(NavigationStore.makeDefault())
         NoteRowView(note: Note(title: "Title", content: ""))
             .environmentObject(NavigationStore.makeDefault())
-        NoteRowView(note: Note(title: "Title", content: String(repeating: "a", count: 100),
+        NoteRowView(note: Note(tags: ["adasd", "23123", "asdasdas"], title: "Title", content: String(repeating: "a", count: 100),
                                color: Color.green.description))
+        NoteRowView(note: Note(tags: ["adasd", "23123", "asdasdas"], title: "Title", content: String(repeating: "a", count: 100),
+                               color: Color.white.description))
         .environmentObject(NavigationStore.makeDefault())
     }
     .listStyle(.plain)

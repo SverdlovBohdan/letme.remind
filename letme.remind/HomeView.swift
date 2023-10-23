@@ -29,7 +29,6 @@ struct HomeView: View {
                         .font(.largeTitle)
                     Text(String(localized: "notes in memory"))
                 }
-                .animation(.bouncy, value: unhandledNotesPayload)
                                 
                 if notesReader.count($unhandledNotesPayload) != 0 {
                     List {
@@ -44,6 +43,7 @@ struct HomeView: View {
                     .listStyle(.plain)
                 }
             }
+            .animation(.bouncy, value: unhandledNotesPayload)
             .alert(isPresented: $viewStore.isLocalNotificationsAlertAreDisabledPresented) {
                 Alert(title: Text(String(localized: "Local notifications are disabled")),
                       message: Text(String(localized: "You can enable local notifications in settings")),
@@ -82,7 +82,8 @@ struct HomeView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button {
                         Task {
-                            let newNote: Note = Note(title: "testTitle", content: "Testcontn",
+                            let newNote: Note = Note(tags: ["adasd", "23123", "asdasdas"],
+                                                     title: "testTitle", content: "Testcontn",
                                                      color: Color.green.description)
                             Notifications.standart.scheduleTestNotification(note: newNote)
                             notesWriter.write(newNote,to: $notesPayload)

@@ -68,7 +68,7 @@ struct TagsInputView: View {
             .onChange(of: store.tags, perform: { newTags in
                 logger.debug("Tags has been changed: \(newTags)")
                 scrollProxy.scrollTo(tagInputId)
-                onTagChange?(Set<String>(newTags))
+                onTagChange?(Set<String>(store.tags))
             })
         }
     }
