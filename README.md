@@ -14,3 +14,5 @@ DERIVED_DATA="$(xcodebuild -showBuildSettings | sed -n 's|.*BUILD_ROOT = \(.*\)/
 ```
 
 Add letme.remindTests/mocks/letme_remindMocks.generated.swift to letme.remindTest compile source
+
+### Swinject https://github.com/Swinject/Swinject
