@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ArchiveView: View {
     @AppStorage(NotesPersitenceKeys.notesArchive) private var notesArchivePayload: Data = Data()
+    @State private var searchText: String = ""
     
     private var notesReader: NotesReader = AppEnvironment.forceResolve(type: NotesReader.self)
     private var notesWriter: NotesWriter = AppEnvironment.forceResolve(type: NotesWriter.self)
@@ -17,11 +18,24 @@ struct ArchiveView: View {
         notesReader.read(from: $notesArchivePayload)
     }
     
+    private var searchResult: Notes {
+        //TODO: Separate search query by whitespaces and try to find any of them.
+        if searchText.isEmpty {
+            return archiveNotes
+        } else {
+            return archiveNotes.filter { note in
+                //TODO: Make it as functions chain calls and configurable by ctor: criteria1() || criteria2() || ...
+                note.title.lowercased().contains(searchText.lowercased()) || note.tags.contains { tag in
+                    return tag.lowercased().contains(searchText.lowercased())
+                }
+            }
+        }
+    }
+    
     @ViewBuilder private var content: some View {
         if notesReader.count($notesArchivePayload) != 0 {
-            //TODO: Search
             List {
-                ForEach(archiveNotes) { note in
+                ForEach(searchResult) { note in
                     NoteRowView(note: note, kind: .archive)
                 }
                 .onDelete(perform: { indexSet in
@@ -30,6 +44,8 @@ struct ArchiveView: View {
                     }
                 })
             }
+            .animation(.bouncy, value: searchResult)
+            .searchable(text: $searchText)
             .listStyle(.plain)
             .toolbar {
                 EditButton()
