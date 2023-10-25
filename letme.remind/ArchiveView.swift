@@ -31,7 +31,7 @@ struct ArchiveView: View {
                 }
                 .onDelete(perform: { indexSet in
                     indexSet.forEach { index in
-                        notesWriter.remove(archiveNotes[index], from: $notesArchivePayload)
+                        notesWriter.remove(searchResult[index], from: $notesArchivePayload)
                     }
                 })
             }

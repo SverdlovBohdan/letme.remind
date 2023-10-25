@@ -53,6 +53,7 @@ struct letme_remindApp: App {
         }
         .inObjectScope(.container)
         .implements(NoteScheduler.self)
+        .implements(UnhandlerNotesProvider.self)
     }
     
     var body: some Scene {

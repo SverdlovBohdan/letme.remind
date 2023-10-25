@@ -15,11 +15,14 @@ struct HomeView: View {
     
     private var notificationPermissions: LocalNotificationPermissionsProvider =
     AppEnvironment.forceResolve(type: LocalNotificationPermissionsProvider.self)
-    private var notificationsProvider: LocalNotificationProvider =
-    AppEnvironment.forceResolve(type: LocalNotificationProvider.self)
     
     private var notesReader: NotesReader = AppEnvironment.forceResolve(type: NotesReader.self)
+    private var unhadledNotesProvider: UnhandlerNotesProvider =
+        AppEnvironment.forceResolve(type: UnhandlerNotesProvider.self)
+    
+#if DEBUG
     private var notesWriter: NotesWriter = AppEnvironment.forceResolve(type: NotesWriter.self)
+#endif
     
     var body: some View {
         NavigationStack(path: $navigation.navigationPath) {
@@ -132,28 +135,7 @@ struct HomeView: View {
     }
     
     private func updateUnhandledNotes() async {
-        let pendingNotifications = await notificationsProvider.pendingNotifications()
-        guard !pendingNotifications.isEmpty else { return }
-        
-        let allNotes = notesReader.read(from: $notesPayload)
-        let unhandledNotes = notesReader.read(from: $unhandledNotesPayload)
-        
-        let firedButNotInUnhandledNotes = allNotes.filter { item in
-            let isPendingNote = pendingNotifications.contains { notificationRequest in
-                return notificationRequest.identifier == item.id.uuidString
-            }
-            let inUnhandledNotes = unhandledNotes.contains { unhandledNote in
-                return unhandledNote.id == item.id
-            }
-            
-            return !isPendingNote && !inUnhandledNotes
-        }
-        
-        if !firedButNotInUnhandledNotes.isEmpty {
-            firedButNotInUnhandledNotes.forEach { note in
-                notesWriter.write(note, to: $unhandledNotesPayload)
-            }
-        }
+        await unhadledNotesProvider.populateUnhandledNotes()
     }
 }
 

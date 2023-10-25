@@ -8,10 +8,13 @@
 import Foundation
 import SwiftUI
 
-class NoteInteractor: NoteArchiver, NoteScheduler {
+class NoteInteractor: NoteArchiver, NoteScheduler, UnhandlerNotesProvider {
     private var notesWriter: NotesWriter = AppEnvironment.forceResolve(type: NotesWriter.self)
+    private var notesReader: NotesReader = AppEnvironment.forceResolve(type: NotesReader.self)
     private var notifications: LocalNotificationScheduler =
         AppEnvironment.forceResolve(type: LocalNotificationScheduler.self)
+    private var notificationsProvider: LocalNotificationProvider =
+        AppEnvironment.forceResolve(type: LocalNotificationProvider.self)
     private var persistenceBindings: NotesPersistenceBindings =
         AppEnvironment.forceResolve(type: NotesPersistenceBindings.self)
     
@@ -49,5 +52,31 @@ class NoteInteractor: NoteArchiver, NoteScheduler {
         }
         
         return result
+    }
+    
+    func populateUnhandledNotes() async {
+        let pendingNotifications = await notificationsProvider.pendingNotifications()
+        guard !pendingNotifications.isEmpty else { return }
+        
+        let unhandledNotesBinding = persistenceBindings.makeUnhandledNotesPersistenceBinding()
+        let allNotes = notesReader.read(from: persistenceBindings.makeNotesToRemindPersistenceBinding())
+        let unhandledNotes = notesReader.read(from: unhandledNotesBinding)
+        
+        let firedButNotInUnhandledNotes = allNotes.filter { item in
+            let isPendingNote = pendingNotifications.contains { notificationRequest in
+                return notificationRequest.identifier == item.id.uuidString
+            }
+            let inUnhandledNotes = unhandledNotes.contains { unhandledNote in
+                return unhandledNote.id == item.id
+            }
+            
+            return !isPendingNote && !inUnhandledNotes
+        }
+        
+        if !firedButNotInUnhandledNotes.isEmpty {
+            firedButNotInUnhandledNotes.forEach { note in
+                notesWriter.write(note, to: unhandledNotesBinding)
+            }
+        }
     }
 }
