@@ -1,17 +1,12 @@
 import SwiftUI
 import Combine
 
-struct NoteView: View {
-    @AppStorage(NotesPersitenceKeys.notesToRemindKey) private var notesPayload: Data = Data()
-    @AppStorage(NotesPersitenceKeys.unhandledNotes) private var unhandledNotesPayload: Data = Data()
-    @AppStorage(NotesPersitenceKeys.notesArchive) private var notesArchivePayload: Data = Data()
-    
+struct NoteView: View {    
     @StateObject private var store: MakeNewNoteStore = .makeDefault()
     @State private var remindOption: WhenToRemind = .within7Days
     
-    private var notesWriter: NotesWriter = AppEnvironment.forceResolve(type: NotesWriter.self)
-    private var notifications: LocalNotificationScheduler =
-    AppEnvironment.forceResolve(type: LocalNotificationScheduler.self)
+    private var noteArchiver: NoteArchiver = AppEnvironment.forceResolve(type: NoteArchiver.self)
+    private var noteScheduler: NoteScheduler = AppEnvironment.forceResolve(type: NoteScheduler.self)
     
     private let noteToPreview: Note?
     private var isPreview: Bool {
@@ -21,9 +16,13 @@ struct NoteView: View {
     typealias DoneCallback = () -> Void
     private var doneCallback: DoneCallback?
     
-    init(note: Note? = nil, didSave: DoneCallback? = nil) {
+    typealias ErrorCallback = (ScheduleError) -> Void
+    private var errorCallback: ErrorCallback?
+    
+    init(note: Note? = nil, didSave: DoneCallback? = nil, onError: ErrorCallback? = nil) {
         self.noteToPreview = note
         self.doneCallback = didSave
+        self.errorCallback = onError
     }
     
     var confirmationActionText: String {
@@ -91,7 +90,7 @@ struct NoteView: View {
         .toolbar {
             ToolbarItemGroup(placement: .confirmationAction) {
                 Button(confirmationActionText) {
-                    tryToScheduleNewNote(when: remindOption)
+                    tryToScheduleNewNote()
                 }
                 .disabled(!store.isValid)
             }
@@ -120,9 +119,7 @@ struct NoteView: View {
     }
     
     private func forget(note: Note) {
-        notesWriter.remove(note, from: $notesPayload)
-        notesWriter.remove(note, from: $unhandledNotesPayload)
-        notesWriter.write(note, to: $notesArchivePayload)
+        noteArchiver.addToArchive(note)
         doneCallback?()
     }
     
@@ -144,25 +141,25 @@ struct NoteView: View {
         }
     }
     
-    private func tryToScheduleNewNote(when: WhenToRemind) -> Void {
-        if store.isValid {
-            let newNote: Note = Note(title: store.title,
-                                     content: store.content,
-                                     color: store.colorTag)
-            Task { @MainActor in
-                let result = await notifications.schedule(note: newNote, when: remindOption)
+    private func tryToScheduleNewNote() -> Void {
+        Task { @MainActor in
+            if store.isValid {
+                let newNote: Note = Note(title: store.title,
+                                         content: store.content,
+                                         color: store.colorTag)
+                var result: Result<Void, ScheduleError> = .failure(.failed)
+                if isPreview {
+                    result = await noteScheduler.rescheduleNote(note: newNote, oldNote: noteToPreview!,
+                                                                when: remindOption)
+                } else {
+                    result = await noteScheduler.scheduleNote(note: newNote, when: remindOption)
+                }
                 
                 switch result {
                 case .success(_):
-                    if isPreview {
-                        notesWriter.remove(noteToPreview!, from: $notesPayload)
-                        notesWriter.remove(noteToPreview!, from: $unhandledNotesPayload)
-                    }
-                    
-                    notesWriter.write(newNote,to: $notesPayload)
                     doneCallback?()
-                case .failure(_):
-                    break
+                case .failure(let error):
+                    errorCallback?(error)
                 }
             }
         }

@@ -14,9 +14,9 @@ struct HomeView: View {
     @StateObject private var viewStore: HomeViewStore = .makeDefault()
     
     private var notificationPermissions: LocalNotificationPermissionsProvider =
-        AppEnvironment.forceResolve(type: LocalNotificationPermissionsProvider.self)
+    AppEnvironment.forceResolve(type: LocalNotificationPermissionsProvider.self)
     private var notificationsProvider: LocalNotificationProvider =
-        AppEnvironment.forceResolve(type: LocalNotificationProvider.self)
+    AppEnvironment.forceResolve(type: LocalNotificationProvider.self)
     
     private var notesReader: NotesReader = AppEnvironment.forceResolve(type: NotesReader.self)
     private var notesWriter: NotesWriter = AppEnvironment.forceResolve(type: NotesWriter.self)
@@ -29,7 +29,7 @@ struct HomeView: View {
                         .font(.largeTitle)
                     Text(String(localized: "notes in memory"))
                 }
-                                
+                
                 if notesReader.count($unhandledNotesPayload) != 0 {
                     List {
                         Section {
@@ -53,11 +53,19 @@ struct HomeView: View {
             .navigationDestination(isPresented: $viewStore.isMakingNoteViewPresented) {
                 NoteView {
                     closeMakingNoteView()
+                } onError: { error in
+                    if error == .nopermissions {
+                        showNotificationsAreDisabledAlert()
+                    }
                 }
             }
             .navigationDestination(for: NoteId.self, destination: { noteId in
                 NoteView(note: notesReader.one(by: noteId.noteId, from: $notesPayload)) {
                     closePreviewNoteView()
+                } onError: { error in
+                    if error == .nopermissions {
+                        showNotificationsAreDisabledAlert()
+                    }
                 }
                 .navigationBarBackButtonHidden()
             })
@@ -76,8 +84,8 @@ struct HomeView: View {
             .task {
                 await updateUnhandledNotes()
             }
- 
-            #if DEBUG
+            
+#if DEBUG
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button {
@@ -93,7 +101,7 @@ struct HomeView: View {
                     }
                 }
             }
-            #endif
+#endif
         }
     }
     
@@ -125,6 +133,8 @@ struct HomeView: View {
     
     private func updateUnhandledNotes() async {
         let pendingNotifications = await notificationsProvider.pendingNotifications()
+        guard !pendingNotifications.isEmpty else { return }
+        
         let allNotes = notesReader.read(from: $notesPayload)
         let unhandledNotes = notesReader.read(from: $unhandledNotesPayload)
         
