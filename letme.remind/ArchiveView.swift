@@ -13,23 +13,14 @@ struct ArchiveView: View {
     
     private var notesReader: NotesReader = AppEnvironment.forceResolve(type: NotesReader.self)
     private var notesWriter: NotesWriter = AppEnvironment.forceResolve(type: NotesWriter.self)
+    private var archiveNotesFilter: NoteFilter = AppEnvironment.forceResolve(type: NoteFilter.self)
     
     private var archiveNotes: Notes {
         notesReader.read(from: $notesArchivePayload)
     }
     
     private var searchResult: Notes {
-        //TODO: Separate search query by whitespaces and try to find any of them.
-        if searchText.isEmpty {
-            return archiveNotes
-        } else {
-            return archiveNotes.filter { note in
-                //TODO: Make it as functions chain calls and configurable by ctor: criteria1() || criteria2() || ...
-                note.title.lowercased().contains(searchText.lowercased()) || note.tags.contains { tag in
-                    return tag.lowercased().contains(searchText.lowercased())
-                }
-            }
-        }
+        archiveNotesFilter.filter(by: searchText, notesPayloadBinding: $notesArchivePayload)
     }
     
     @ViewBuilder private var content: some View {

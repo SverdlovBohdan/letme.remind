@@ -42,6 +42,11 @@ struct letme_remindApp: App {
         .inObjectScope(.container)
         .implements(LocalNotificationScheduler.self)
         .implements(LocalNotificationProvider.self)
+        
+        AppEnvironment.shared.register(NoteFilter.self) { _ in
+            DefaultArchiveNotesFilter()
+        }
+        .inObjectScope(.container)
     }
     
     var body: some Scene {
